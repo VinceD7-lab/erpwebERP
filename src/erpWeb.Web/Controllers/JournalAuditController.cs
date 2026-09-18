@@ -9,7 +9,6 @@ namespace erpWeb.Web.Controllers;
 [Authorize(Policy = Permissions.JournalAudit.Lire)]
 public sealed class JournalAuditController : Controller
 {
-    private const int NombreEntreesAffichees = 500;
     private const int NombreEntreesExportees = 10_000;
 
     private readonly ILectureJournalAudit _lectureJournalAudit;
@@ -29,8 +28,8 @@ public sealed class JournalAuditController : Controller
         _horloge = horloge;
     }
 
-    public async Task<IActionResult> Index(CancellationToken jetonAnnulation)
-        => View(await _lectureJournalAudit.ListerRecentesAsync(NombreEntreesAffichees, jetonAnnulation));
+    /// <summary>La grille charge ses données par l'action <see cref="Entrees"/>.</summary>
+    public IActionResult Index() => View();
 
     /// <summary>Page de résultats consommée par la grille (JSON).</summary>
     [HttpGet]
