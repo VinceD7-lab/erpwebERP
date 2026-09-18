@@ -95,6 +95,17 @@ public sealed class GrilleJournalAuditTests : IClassFixture<FabriqueApplication>
     }
 
     [Fact]
+    public async Task Index_Administrateur_ContientLePointDeMontage()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var html = await client.GetStringAsync("/JournalAudit");
+
+        Assert.Contains("data-composant-vue=\"tableau-journal-audit\"", html, StringComparison.Ordinal);
+        Assert.Contains("/JournalAudit/Entrees", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Entrees_Anonyme_SansAcceptJson_RedirigeVersLaConnexion()
     {
         var reponse = await CreerClient().GetAsync("/JournalAudit/Entrees");
