@@ -17,7 +17,7 @@ Socle applicatif d'ERP pour PME, orienté tableau de bord — ASP.NET Core MVC (
 - [SDK .NET 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Outil EF Core : `dotnet tool install --global dotnet-ef` (ou `dotnet tool update --global dotnet-ef`)
 - SQL Server LocalDB (instance `MSSQLLocalDB`) : installé avec Visual Studio (charge de travail « Stockage et traitement des données ») ou via l'installateur SQL Server Express (option LocalDB) ; vérifier avec `sqllocaldb info MSSQLLocalDB`
-- Accès réseau au premier build : les bibliothèques frontend (Bootstrap, Chart.js, DataTables…) sont restaurées par LibMan
+- Accès réseau au premier build : les bibliothèques frontend (Bootstrap, Chart.js, DataTables, Vue 3, Tabulator…) sont restaurées par LibMan. Aucun Node ni npm n'est requis : les composants Vue sont des modules ES natifs, sans étape de build
 
 ## Démarrage
 

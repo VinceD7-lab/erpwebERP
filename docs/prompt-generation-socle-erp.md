@@ -90,8 +90,12 @@ Tu es chargé de générer le socle technique d'une application ERP pour PME, en
 À intégrer dans `wwwroot/lib` via **LibMan** (ou CDN) :
 
 - `Bootstrap 5.3` + `Bootstrap Icons 1.11.3` — mise en page responsive, écosystème large
-- `DataTables.net` (intégration Bootstrap 5) — grilles de données triables, filtrables et paginées côté client
+- `Vue 3` (build global `vue.global.prod.js`) — îlots interactifs montés sur les vues Razor, sans Node ni bundler
+- `Tabulator` (thème Bootstrap 5) — grilles paginées, filtrées et triées **côté serveur**
+- `DataTables.net` (intégration Bootstrap 5) — tri et pagination côté client, sur les listes non encore migrées vers Vue
 - `Chart.js` — graphiques du tableau de bord
+
+Contrainte : pas d'étape de build frontend. Les bibliothèques sont des builds globaux restaurés par LibMan, les composants des modules ES natifs servis tels quels.
 
 ## Modules transverses du socle
 
@@ -113,6 +117,7 @@ Tu es chargé de générer le socle technique d'une application ERP pour PME, en
 
 - **Défaut** : interception du `SaveChanges` d'EF Core (`IntercepteurAudit` héritant de `SaveChangesInterceptor`) pour tracer les créations, modifications et suppressions
 - Table `JournalAudit` : entité, identifiant, action, utilisateur, date, valeurs avant/après (JSON)
+- Consultation : grille paginée, filtrée et triée **côté serveur** (îlot Vue + Tabulator alimenté par une action JSON), sans plafond sur le nombre d'entrées consultables
 
 ### Gestion documentaire
 
