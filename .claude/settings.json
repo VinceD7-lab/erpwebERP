@@ -25,7 +25,18 @@
       "PowerShell(dotnet user-secrets list --project src/erpWeb.Web 2>&1 | ForEach-Object { if \\($_ -match 'MotDePasse'\\) { \\($_ -split '='\\)[0] + '= \\(défini\\)' } else { $_ } })",
       "PowerShell(dotnet run --project src/erpWeb.Web --launch-profile http)",
       "PowerShell($pret = $false; for \\($i = 0; $i -lt 90 -and -not $pret; $i++\\) { Start-Sleep -Seconds 1; if \\(\\(curl.exe -s -o NUL -w \"%{http_code}\" http://localhost:5271/Compte/Connexion\\) -eq '200'\\) { $pret = $true } }; \"Application prête : $pret \\(après ~$i s\\)\")",
-      "PowerShell(dotnet run --no-build --project src/erpWeb.Web --launch-profile http)"
+      "PowerShell(dotnet run --no-build --project src/erpWeb.Web --launch-profile http)",
+      "Bash(dotnet build *)",
+      "Bash(git commit -m 'chore\\(frontend\\): ajouter Vue 3 et Tabulator a libman.json *)",
+      "Bash(git commit -m 'feat\\(frontend\\): monter les ilots Vue de maniere declarative *)",
+      "Bash(git commit -m 'docs\\(frontend\\): documenter la convention des ilots Vue *)",
+      "Bash(dotnet test *)",
+      "Bash(dotnet format *)",
+      "Bash(git commit -m 'feat\\(audit\\): rechercher le journal d'\\\\''audit avec pagination serveur *)",
+      "Bash(git commit -m 'fix\\(audit\\): exposer les dates du journal en UTC explicite *)",
+      "Bash(git commit -m 'feat\\(web\\): exposer la recherche du journal d'\\\\''audit en JSON *)",
+      "Bash(git commit -m 'fix\\(securite\\): repondre 401 ou 403 aux appels JSON au lieu de rediriger *)",
+      "Bash(command -v node)"
     ],
     "deny": [
       "Bash(git push --force:*)",
