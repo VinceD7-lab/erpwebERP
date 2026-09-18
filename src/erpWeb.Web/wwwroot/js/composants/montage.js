@@ -32,7 +32,13 @@ async function monter(element) {
   }
 
   const module = await import(new URL(nom + '.js', dossierComposants).href);
-  Vue.createApp(module.default, lireProprietes(element)).mount(element);
+  const application = Vue.createApp(module.default, lireProprietes(element));
+
+  // Vue intercepte les erreurs de hook (mounted notamment) sans les propager : sans ce
+  // gestionnaire, un composant qui echoue apres le montage laisserait une zone vide,
+  // le contenu de repli ayant deja ete remplace.
+  application.config.errorHandler = (erreur) => signalerErreur(element, erreur);
+  application.mount(element);
 }
 
 /** Monte tous les îlots présents sous la racine donnée (document entier par défaut). */
