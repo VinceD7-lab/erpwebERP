@@ -18,6 +18,7 @@ public static class DependencyInjection
 
         services.AddScoped<IServiceUtilisateurs, ServiceUtilisateurs>();
         services.AddScoped<ILectureJournalAudit, ServiceJournalAudit>();
+        services.AddScoped<IRechercheJournalAudit, ServiceRechercheJournalAudit>();
         services.AddScoped<IServiceDocuments, ServiceDocuments>();
         services.AddScoped<IServiceParametres, ServiceParametres>();
 
