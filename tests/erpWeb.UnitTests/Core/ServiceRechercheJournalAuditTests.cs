@@ -109,7 +109,7 @@ public sealed class ServiceRechercheJournalAuditTests : IDisposable
     }
 
     [Fact]
-    public async Task RechercherAsync_FiltreSurPeriode_IncluteLaBorneInferieureEtExclutLaSuperieure()
+    public async Task RechercherAsync_FiltreSurPeriode_FiltreSurLIntervalleSemiOuvert()
     {
         var debut = _maintenant.AddDays(-1);
         _base.Contexte.JournalAudit.AddRange(
@@ -187,6 +187,18 @@ public sealed class ServiceRechercheJournalAuditTests : IDisposable
         var resultat = await CreerService().RechercherAsync(new CriteresJournalAudit());
 
         Assert.Equal(DateTimeKind.Utc, resultat.Elements[0].Date.Kind);
+    }
+
+    [Fact]
+    public async Task RechercherAsync_RechercheSansCorrespondance_RetourneUnePageVide()
+    {
+        await AjouterEntreesAsync(3);
+
+        var resultat = await CreerService().RechercherAsync(new CriteresJournalAudit { Recherche = "inexistant" });
+
+        Assert.Empty(resultat.Elements);
+        Assert.Equal(0, resultat.NombreTotal);
+        Assert.Equal(1, resultat.NombrePages);
     }
 
     private ServiceRechercheJournalAudit CreerService() => new(_base.Contexte, BaseDonneesTest.CreerMapper());

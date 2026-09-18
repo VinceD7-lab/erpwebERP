@@ -55,6 +55,54 @@ public sealed class GrilleJournalAuditTests : IClassFixture<FabriqueApplication>
     }
 
     [Fact]
+    public async Task Entrees_Administrateur_ExposeLesChampsAttendusParLaGrille()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var racine = await LireRacineAsync(await client.GetAsync("/JournalAudit/Entrees"));
+
+        // La grille lie ses colonnes sur ces noms exacts : un renommage de DTO doit casser ici.
+        var element = racine.GetProperty("elements").EnumerateArray().First();
+        foreach (var champ in new[] { "id", "date", "utilisateur", "action", "typeEntite", "idEntite" })
+        {
+            Assert.True(element.TryGetProperty(champ, out _), $"Champ absent du contrat JSON : {champ}.");
+        }
+    }
+
+    [Fact]
+    public async Task Entrees_Administrateur_SerialiseLesDatesEnUtcExplicite()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var racine = await LireRacineAsync(await client.GetAsync("/JournalAudit/Entrees"));
+
+        // Sans le suffixe Z, new Date(...) cote navigateur interpreterait la date en heure locale.
+        var date = racine.GetProperty("elements").EnumerateArray().First().GetProperty("date").GetString();
+        Assert.EndsWith("Z", date, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Entrees_DateNonAnalysable_Retourne400()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.GetAsync("/JournalAudit/Entrees?dateDebut=pas-une-date");
+
+        Assert.Equal(HttpStatusCode.BadRequest, reponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Entrees_Anonyme_AvecEnTeteRequestedWith_Retourne401()
+    {
+        var client = CreerClient();
+        client.DefaultRequestHeaders.Add("X-Requested-With", "fetch");
+
+        var reponse = await client.GetAsync("/JournalAudit/Entrees");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, reponse.StatusCode);
+    }
+
+    [Fact]
     public async Task Entrees_TriInvalide_Retourne400()
     {
         var client = await CreerClientConnecteAsync();
