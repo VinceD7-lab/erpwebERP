@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json.Serialization;
 using erpWeb.Core;
 using erpWeb.Core.Autorisation;
 using erpWeb.Core.Communs;
@@ -6,6 +7,8 @@ using erpWeb.Core.Utilisateurs;
 using erpWeb.Infrastructure;
 using erpWeb.Web.Autorisation;
 using erpWeb.Web.Securite;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -43,6 +46,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Compte/AccesRefuse";
     options.Cookie.Name = "erpWeb.Authentification";
     options.SlidingExpiration = true;
+
+    // Les appels JSON (îlots Vue) doivent recevoir un statut exploitable, pas une page de connexion HTML.
+    options.Events.OnRedirectToLogin = contexte => RepondreSansRedirection(contexte, StatusCodes.Status401Unauthorized);
+    options.Events.OnRedirectToAccessDenied = contexte => RepondreSansRedirection(contexte, StatusCodes.Status403Forbidden);
 });
 
 // Un compte désactivé (jeton de sécurité renouvelé) est déconnecté en moins d'une minute.
@@ -58,7 +65,11 @@ builder.Services.AddAuthorization(options =>
 });
 builder.Services.AddSingleton<IAuthorizationHandler, GestionnairePermission>();
 
-builder.Services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+builder.Services
+    .AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()))
+    // Les énumérations sont exposées par leur nom : un client JavaScript ne dépend pas
+    // de l'ordre de déclaration côté C#.
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 var app = builder.Build();
 
@@ -93,6 +104,26 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 await app.RunAsync();
+
+/// <summary>
+/// Répond par un statut plutôt que par une redirection quand l'appelant attend du JSON.
+/// Une navigation ordinaire conserve la redirection vers la page de connexion.
+/// </summary>
+static Task RepondreSansRedirection(RedirectContext<CookieAuthenticationOptions> contexte, int statut)
+{
+    if (AttendDuJson(contexte.Request))
+    {
+        contexte.Response.StatusCode = statut;
+        return Task.CompletedTask;
+    }
+
+    contexte.Response.Redirect(contexte.RedirectUri);
+    return Task.CompletedTask;
+}
+
+static bool AttendDuJson(HttpRequest requete)
+    => requete.Headers.XRequestedWith == "fetch"
+        || requete.Headers.Accept.Any(valeur => valeur is not null && valeur.Contains("application/json", StringComparison.OrdinalIgnoreCase));
 
 /// <summary>Point d'entrée exposé aux tests d'intégration (WebApplicationFactory).</summary>
 public partial class Program;
