@@ -1,0 +1,14 @@
+@model ErreurViewModel
+@{
+    ViewData["Title"] = "Erreur";
+}
+
+<div class="text-center py-5">
+    <i class="bi bi-exclamation-octagon display-3 text-danger" aria-hidden="true"></i>
+    <h1 class="h3 mt-3">Une erreur est survenue</h1>
+    <p class="text-body-secondary">La requête n'a pas pu être traitée.</p>
+    @if (!string.IsNullOrEmpty(Model.IdentifiantRequete))
+    {
+        <p class="small text-body-secondary">Identifiant de la requête : <code>@Model.IdentifiantRequete</code></p>
+    }
+</div>

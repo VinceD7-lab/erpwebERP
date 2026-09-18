@@ -1,0 +1,44 @@
+@model ConnexionViewModel
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
+        <div class="text-center mb-4">
+            <i class="bi bi-grid-1x2-fill text-primary display-5" aria-hidden="true"></i>
+            <h1 class="h3 mt-2">erpWeb</h1>
+            <p class="text-body-secondary">Connectez-vous pour accéder au tableau de bord.</p>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Connexion" method="post">
+                    <input type="hidden" asp-for="UrlRetour" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="username" autofocus />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MotDePasse" class="form-label"></label>
+                        <input asp-for="MotDePasse" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="MotDePasse" class="text-danger small"></span>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input asp-for="SeSouvenir" class="form-check-input" />
+                        <label asp-for="SeSouvenir" class="form-check-label"></label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                </form>
+            </div>
+        </div>
+        <p class="text-center mt-3">
+            Pas encore de compte ? <a asp-action="Inscription">Créer un compte</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

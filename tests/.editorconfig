@@ -1,0 +1,3 @@
+[*.cs]
+# Noms de tests : Methode_Scenario_ResultatAttendu, sans suffixe Async imposé.
+dotnet_naming_rule.methodes_asynchrones_suffixees.severity = none

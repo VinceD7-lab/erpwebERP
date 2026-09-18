@@ -1,0 +1,30 @@
+@model IReadOnlyList<IWidgetTableauDeBord>
+@{
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<en-tete-page titre="Tableau de bord" icone="bi-speedometer2"></en-tete-page>
+
+@if (Model.Count == 0)
+{
+    <p class="text-body-secondary">Aucun widget n'est disponible pour vos permissions.</p>
+}
+
+<div class="row g-4">
+    @foreach (var widget in Model)
+    {
+        <div class="col-12 col-lg-6">
+            <section class="card h-100 shadow-sm" data-widget="@widget.Nom" aria-labelledby="titre-@widget.Nom">
+                <div class="card-header bg-body d-flex align-items-center justify-content-between">
+                    <h2 id="titre-@widget.Nom" class="h6 mb-0"><i class="bi @widget.Icone me-2" aria-hidden="true"></i>@widget.Titre</h2>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-rafraichir-widget="@widget.Nom" aria-label="Rafraîchir : @widget.Titre" title="Rafraîchir">
+                        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="card-body" data-contenu-widget="@widget.Nom" aria-live="polite">
+                    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widget })
+                </div>
+            </section>
+        </div>
+    }
+</div>

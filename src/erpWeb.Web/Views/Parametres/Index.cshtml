@@ -1,0 +1,54 @@
+@model IReadOnlyList<erpWeb.Core.Parametres.ParametreDto>
+@{
+    ViewData["Title"] = "Paramètres";
+}
+
+<en-tete-page titre="Paramètres" icone="bi-gear">
+    <a asp-action="Modifier" class="btn btn-primary" asp-permission="@Permissions.Parametres.Modifier">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nouveau paramètre
+    </a>
+</en-tete-page>
+
+<p class="text-body-secondary small">
+    Les clés suivent la notation de configuration <code>Section:Cle</code> (ex. <code>Smtp:Hote</code>) et surchargent
+    les valeurs des fichiers <code>appsettings.json</code> sans redéploiement.
+</p>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle w-100" data-tableau>
+                <thead>
+                    <tr>
+                        <th scope="col">Clé</th>
+                        <th scope="col">Valeur</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Modifié</th>
+                        <th scope="col" class="text-end" data-orderable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var parametre in Model)
+                    {
+                        <tr>
+                            <td><code>@parametre.Cle</code></td>
+                            <td class="text-break">@parametre.Valeur</td>
+                            <td>@parametre.Description</td>
+                            <td class="small text-body-secondary">
+                                @if (parametre.DateModification is DateTime date)
+                                {
+                                    @date.ToLocalTime().ToString("dd/MM/yyyy HH:mm") <text> – @parametre.ModifiePar</text>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Modifier" asp-route-cle="@parametre.Cle" class="btn btn-sm btn-outline-secondary" asp-permission="@Permissions.Parametres.Modifier" title="Modifier" aria-label="Modifier @parametre.Cle">
+                                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

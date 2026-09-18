@@ -1,0 +1,27 @@
+@model DonneesListe
+@if (Model.Elements.Count == 0)
+{
+    <p class="text-body-secondary mb-0">@Model.MessageVide</p>
+}
+else
+{
+    <ul class="list-group list-group-flush">
+        @foreach (var element in Model.Elements)
+        {
+            <li class="list-group-item px-0">
+                @if (element.Url is not null)
+                {
+                    <a href="@Url.Content("~" + element.Url)" class="fw-medium text-break">@element.Libelle</a>
+                }
+                else
+                {
+                    <span class="fw-medium text-break">@element.Libelle</span>
+                }
+                @if (element.Detail is not null)
+                {
+                    <div class="small text-body-secondary">@element.Detail</div>
+                }
+            </li>
+        }
+    </ul>
+}

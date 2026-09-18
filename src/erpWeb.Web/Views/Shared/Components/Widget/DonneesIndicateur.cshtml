@@ -1,0 +1,9 @@
+@model DonneesIndicateur
+<div class="d-flex flex-column justify-content-center h-100">
+    <div class="display-5 fw-semibold">@Model.Valeur</div>
+    <div class="text-body-secondary">@Model.Libelle</div>
+    @if (Model.Detail is not null)
+    {
+        <div class="small text-body-secondary mt-2">@Model.Detail</div>
+    }
+</div>

@@ -1,0 +1,44 @@
+:root {
+  --largeur-barre-laterale: 250px;
+}
+
+body {
+  background-color: var(--bs-tertiary-bg);
+}
+
+@media (min-width: 992px) {
+  .barre-laterale {
+    width: var(--largeur-barre-laterale);
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    flex-shrink: 0;
+  }
+}
+
+.barre-laterale .nav-link {
+  color: var(--bs-body-color);
+}
+
+.barre-laterale .nav-link.active {
+  color: var(--bs-white);
+}
+
+.min-w-0 {
+  min-width: 0;
+}
+
+.conteneur-graphique {
+  position: relative;
+  height: 240px;
+}
+
+.card-header {
+  min-height: 3rem;
+}
+
+pre {
+  max-height: 16rem;
+  overflow: auto;
+}

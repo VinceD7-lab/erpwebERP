@@ -1,0 +1,5 @@
+@using System.Text.Json
+@model DonneesGraphique
+<div class="conteneur-graphique">
+    <canvas role="img" aria-label="@ViewData[WidgetViewComponent.CleTitreWidget]" data-graphique="@JsonSerializer.Serialize(Model, JsonSerializerOptions.Web)"></canvas>
+</div>

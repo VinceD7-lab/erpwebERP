@@ -1,0 +1,36 @@
+@model erpWeb.Core.Utilisateurs.InscriptionDto
+@{
+    ViewData["Title"] = "Inscription";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+        <h1 class="h3 text-center mb-4">Créer un compte</h1>
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form asp-action="Inscription" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="NomComplet" class="form-label">Nom complet</label>
+                        <input asp-for="NomComplet" class="form-control" autocomplete="name" required autofocus />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" autocomplete="email" required />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MotDePasse" class="form-label">Mot de passe</label>
+                        <input asp-for="MotDePasse" type="password" class="form-control" autocomplete="new-password" required aria-describedby="aideMotDePasse" />
+                        <div id="aideMotDePasse" class="form-text">8 caractères minimum, avec majuscule, minuscule, chiffre et caractère spécial.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ConfirmationMotDePasse" class="form-label">Confirmation du mot de passe</label>
+                        <input asp-for="ConfirmationMotDePasse" type="password" class="form-control" autocomplete="new-password" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Créer mon compte</button>
+                </form>
+            </div>
+        </div>
+        <p class="text-center mt-3">Déjà inscrit ? <a asp-action="Connexion">Se connecter</a></p>
+    </div>
+</div>

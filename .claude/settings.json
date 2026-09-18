@@ -1,0 +1,101 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet format:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch:*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "PowerShell(dotnet build:*)",
+      "PowerShell(dotnet test:*)",
+      "PowerShell(dotnet format:*)",
+      "PowerShell(dotnet restore:*)",
+      "PowerShell(dotnet ef migrations add:*)",
+      "PowerShell(git status:*)",
+      "PowerShell(git diff:*)",
+      "PowerShell(git log:*)",
+      "PowerShell(dotnet user-secrets list --project src/erpWeb.Web 2>&1 | ForEach-Object { if \\($_ -match 'MotDePasse'\\) { \\($_ -split '='\\)[0] + '= \\(défini\\)' } else { $_ } })",
+      "PowerShell(dotnet run --project src/erpWeb.Web --launch-profile http)",
+      "PowerShell($pret = $false; for \\($i = 0; $i -lt 90 -and -not $pret; $i++\\) { Start-Sleep -Seconds 1; if \\(\\(curl.exe -s -o NUL -w \"%{http_code}\" http://localhost:5271/Compte/Connexion\\) -eq '200'\\) { $pret = $true } }; \"Application prête : $pret \\(après ~$i s\\)\")",
+      "PowerShell(dotnet run --no-build --project src/erpWeb.Web --launch-profile http)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(dotnet ef database drop:*)",
+      "PowerShell(git push --force:*)",
+      "PowerShell(dotnet ef database drop:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/afficher-branche.ps1\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/garde-git.ps1\""
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/valider-commit.ps1\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/garde-migrations.ps1\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/verifier-regles.ps1\"",
+            "timeout": 30
+          },
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/formater.ps1\"",
+            "timeout": 90
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/verifier-build.ps1\"",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}

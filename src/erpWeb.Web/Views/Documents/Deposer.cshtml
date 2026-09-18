@@ -1,0 +1,40 @@
+@model DepotDocumentViewModel
+@{
+    ViewData["Title"] = "Déposer un document";
+}
+
+<en-tete-page titre="Déposer un document" icone="bi-upload">
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Retour</a>
+</en-tete-page>
+
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Deposer" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" class="text-danger small"></div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="TypeEntite" class="form-label"></label>
+                            <input asp-for="TypeEntite" class="form-control" />
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="IdEntite" class="form-label"></label>
+                            <input asp-for="IdEntite" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Fichier" class="form-label"></label>
+                        <input asp-for="Fichier" type="file" class="form-control" />
+                        <div class="form-text">Taille maximale : 10 Mo.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Déposer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

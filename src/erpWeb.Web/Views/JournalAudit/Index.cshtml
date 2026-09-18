@@ -1,0 +1,64 @@
+@using erpWeb.Core.Audit
+@model IReadOnlyList<EntreeJournalAuditDto>
+@{
+    ViewData["Title"] = "Journal d'audit";
+}
+
+<en-tete-page titre="Journal d'audit" icone="bi-journal-text">
+    <a asp-action="Exporter" class="btn btn-outline-success" asp-permission="@Permissions.JournalAudit.Exporter">
+        <i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i>Exporter (Excel)
+    </a>
+</en-tete-page>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="small text-body-secondary">Les @Model.Count opérations les plus récentes.</p>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle w-100" data-tableau>
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Utilisateur</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Entité</th>
+                        <th scope="col">Identifiant</th>
+                        <th scope="col" data-orderable="false">Détails</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entree in Model)
+                    {
+                        var (libelle, couleur) = entree.Action switch
+                        {
+                            ActionAudit.Creation => ("Création", "success"),
+                            ActionAudit.Modification => ("Modification", "primary"),
+                            _ => ("Suppression", "danger"),
+                        };
+                        <tr>
+                            <td data-order="@entree.Date.ToString("o")" class="text-nowrap">@entree.Date.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>@entree.Utilisateur</td>
+                            <td><span class="badge text-bg-@couleur">@libelle</span></td>
+                            <td>@entree.TypeEntite</td>
+                            <td class="text-break small">@entree.IdEntite</td>
+                            <td>
+                                <details>
+                                    <summary class="small">Valeurs</summary>
+                                    @if (entree.AnciennesValeurs is not null)
+                                    {
+                                        <div class="small fw-semibold mt-1">Avant</div>
+                                        <pre class="small bg-body-tertiary p-2 mb-1 text-wrap text-break">@entree.AnciennesValeurs</pre>
+                                    }
+                                    @if (entree.NouvellesValeurs is not null)
+                                    {
+                                        <div class="small fw-semibold">Après</div>
+                                        <pre class="small bg-body-tertiary p-2 mb-0 text-wrap text-break">@entree.NouvellesValeurs</pre>
+                                    }
+                                </details>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

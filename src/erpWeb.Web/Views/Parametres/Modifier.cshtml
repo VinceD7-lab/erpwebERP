@@ -1,0 +1,42 @@
+@model erpWeb.Core.Parametres.ModificationParametreDto
+@{
+    var estNouveau = ViewData[erpWeb.Web.Controllers.ParametresController.CleEstNouveau] as bool? ?? false;
+    ViewData["Title"] = estNouveau ? "Nouveau paramètre" : "Modifier le paramètre";
+}
+
+<en-tete-page titre="@((string)ViewData["Title"]!)" icone="bi-gear">
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Retour</a>
+</en-tete-page>
+
+<div class="row">
+    <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Modifier" method="post">
+                    <input type="hidden" name="estNouveau" value="@(estNouveau ? "true" : "false")" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="Cle" class="form-label">Clé</label>
+                        @if (estNouveau)
+                        {
+                            <input asp-for="Cle" class="form-control font-monospace" placeholder="Section:Cle" required />
+                        }
+                        else
+                        {
+                            <input asp-for="Cle" class="form-control font-monospace" readonly />
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Valeur" class="form-label">Valeur</label>
+                        <textarea asp-for="Valeur" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <input asp-for="Description" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

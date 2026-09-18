@@ -1,0 +1,74 @@
+@model IReadOnlyList<erpWeb.Core.Utilisateurs.UtilisateurDto>
+@{
+    ViewData["Title"] = "Utilisateurs";
+}
+
+<en-tete-page titre="Utilisateurs" icone="bi-people">
+    <a asp-action="Creer" class="btn btn-primary" asp-permission="@Permissions.Utilisateurs.Gerer">
+        <i class="bi bi-person-plus me-1" aria-hidden="true"></i>Nouvel utilisateur
+    </a>
+</en-tete-page>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle w-100" data-tableau>
+                <thead>
+                    <tr>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Rôles</th>
+                        <th scope="col">Statut</th>
+                        <th scope="col">Créé le</th>
+                        <th scope="col" class="text-end" data-orderable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var utilisateur in Model)
+                    {
+                        <tr>
+                            <td>@utilisateur.NomComplet</td>
+                            <td>@utilisateur.Email</td>
+                            <td>
+                                @foreach (var role in utilisateur.Roles)
+                                {
+                                    <span class="badge text-bg-secondary me-1">@role</span>
+                                }
+                            </td>
+                            <td>
+                                @if (utilisateur.EstActif)
+                                {
+                                    <span class="badge text-bg-success">Actif</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-danger">Inactif</span>
+                                }
+                            </td>
+                            <td data-order="@utilisateur.DateCreation.ToString("o")">@utilisateur.DateCreation.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                            <td class="text-end text-nowrap">
+                                <div class="d-inline-flex gap-1" asp-permission="@Permissions.Utilisateurs.Gerer">
+                                    <a asp-action="Modifier" asp-route-id="@utilisateur.Id" class="btn btn-sm btn-outline-secondary" title="Modifier" aria-label="Modifier @utilisateur.NomComplet">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                    </a>
+                                    <form asp-action="DefinirActivation" method="post" data-confirmation="@(utilisateur.EstActif ? $"Désactiver le compte de {utilisateur.NomComplet} ?" : $"Réactiver le compte de {utilisateur.NomComplet} ?")">
+                                        <input type="hidden" name="id" value="@utilisateur.Id" />
+                                        <input type="hidden" name="estActif" value="@(utilisateur.EstActif ? "false" : "true")" />
+                                        @if (utilisateur.EstActif)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Désactiver" aria-label="Désactiver @utilisateur.NomComplet"><i class="bi bi-person-slash" aria-hidden="true"></i></button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Réactiver" aria-label="Réactiver @utilisateur.NomComplet"><i class="bi bi-person-check" aria-hidden="true"></i></button>
+                                        }
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

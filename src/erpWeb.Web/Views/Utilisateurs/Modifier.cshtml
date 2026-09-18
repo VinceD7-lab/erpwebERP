@@ -1,0 +1,48 @@
+@model erpWeb.Core.Utilisateurs.ModificationUtilisateurDto
+@{
+    ViewData["Title"] = "Modifier l'utilisateur";
+    var rolesDisponibles = (IReadOnlyList<string>?)ViewData[erpWeb.Web.Controllers.UtilisateursController.CleRolesDisponibles] ?? [];
+}
+
+<en-tete-page titre="Modifier l'utilisateur" icone="bi-pencil">
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Retour</a>
+</en-tete-page>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-body"><h2 class="h6 mb-0">Informations</h2></div>
+            <div class="card-body">
+                <form asp-action="Modifier" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label asp-for="NomComplet" class="form-label">Nom complet</label>
+                        <input asp-for="NomComplet" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" required />
+                    </div>
+                    <partial name="_SelectionRoles" model="new SelectionRolesViewModel(rolesDisponibles, Model.Roles)" />
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-body"><h2 class="h6 mb-0">Réinitialiser le mot de passe</h2></div>
+            <div class="card-body">
+                <form asp-action="ReinitialiserMotDePasse" method="post" data-confirmation="Réinitialiser le mot de passe de cet utilisateur ?">
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="NouveauMotDePasse" class="form-label">Nouveau mot de passe</label>
+                        <input id="NouveauMotDePasse" name="NouveauMotDePasse" type="password" class="form-control" autocomplete="new-password" required />
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger">Réinitialiser</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

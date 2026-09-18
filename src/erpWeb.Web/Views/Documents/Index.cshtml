@@ -1,0 +1,62 @@
+@model IReadOnlyList<erpWeb.Core.Documents.DocumentDto>
+@{
+    ViewData["Title"] = "Documents";
+}
+
+<en-tete-page titre="Documents" icone="bi-folder2-open">
+    <a asp-action="Deposer" class="btn btn-primary" asp-permission="@Permissions.Documents.Deposer">
+        <i class="bi bi-upload me-1" aria-hidden="true"></i>Déposer un document
+    </a>
+</en-tete-page>
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3" aria-label="Filtrer les documents">
+    <div class="col-12 col-sm-5 col-lg-3">
+        <label for="typeEntite" class="form-label small">Type d'entité</label>
+        <input id="typeEntite" name="typeEntite" value="@ViewData["typeEntite"]" class="form-control form-control-sm" />
+    </div>
+    <div class="col-12 col-sm-4 col-lg-3">
+        <label for="idEntite" class="form-label small">Identifiant d'entité</label>
+        <input id="idEntite" name="idEntite" value="@ViewData["idEntite"]" class="form-control form-control-sm" />
+    </div>
+    <div class="col-12 col-sm-3 col-lg-2">
+        <button type="submit" class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrer</button>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle w-100" data-tableau>
+                <thead>
+                    <tr>
+                        <th scope="col">Fichier</th>
+                        <th scope="col">Entité</th>
+                        <th scope="col">Taille</th>
+                        <th scope="col">Déposé le</th>
+                        <th scope="col">Par</th>
+                        <th scope="col" class="text-end" data-orderable="false">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var document in Model)
+                    {
+                        <tr>
+                            <td class="text-break">
+                                <a asp-action="Telecharger" asp-route-id="@document.Id"><i class="bi bi-download me-1" aria-hidden="true"></i>@document.NomFichier</a>
+                            </td>
+                            <td>@document.TypeEntite #@document.IdEntite</td>
+                            <td data-order="@document.Taille">@Math.Ceiling(document.Taille / 1024d).ToString("N0") Ko</td>
+                            <td data-order="@document.DateCreation.ToString("o")">@document.DateCreation.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@document.CreePar</td>
+                            <td class="text-end">
+                                <form asp-action="Supprimer" asp-route-id="@document.Id" method="post" asp-permission="@Permissions.Documents.Supprimer" data-confirmation="Supprimer définitivement @document.NomFichier ?">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer" aria-label="Supprimer @document.NomFichier"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
