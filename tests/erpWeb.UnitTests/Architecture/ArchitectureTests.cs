@@ -72,14 +72,31 @@ public sealed class ArchitectureTests
     [Fact]
     public void Controleurs_NAccedentPasDirectementAuxDonnees()
     {
+        // Sélection par espace de noms et non par héritage de Controller : un contrôleur d'API
+        // dérivant de ControllerBase échapperait sinon à la règle.
         var resultat = Types.InAssembly(_web)
             .That()
-            .Inherit(typeof(Controller))
+            .ResideInNamespace("erpWeb.Web.Controllers")
             .ShouldNot()
             .HaveDependencyOnAny(typeof(IAppDbContext).FullName!, "Microsoft.EntityFrameworkCore")
             .GetResult();
 
         AssertReussi(resultat);
+    }
+
+    [Fact]
+    public void Controleurs_ResidentDansLEspaceDeNomsControllers()
+    {
+        // Ferme la porte de sortie de la règle précédente : un contrôleur placé ailleurs
+        // ne serait plus couvert par la vérification d'accès aux données.
+        var horsEspaceDeNoms = Types.InAssembly(_web)
+            .That()
+            .HaveNameEndingWith("Controller")
+            .And()
+            .DoNotResideInNamespace("erpWeb.Web.Controllers")
+            .GetTypes();
+
+        Assert.Empty(horsEspaceDeNoms);
     }
 
     [Fact]
