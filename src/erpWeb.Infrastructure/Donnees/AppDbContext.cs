@@ -1,4 +1,5 @@
 using erpWeb.Core.Audit;
+using erpWeb.Core.Clients;
 using erpWeb.Core.Communs;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Parametres;
@@ -20,6 +21,8 @@ public sealed class AppDbContext : IdentityDbContext<Utilisateur>, IAppDbContext
     public DbSet<Document> Documents => Set<Document>();
 
     public DbSet<Parametre> Parametres => Set<Parametre>();
+
+    public DbSet<Client> Clients => Set<Client>();
 
     DbSet<Utilisateur> IAppDbContext.Utilisateurs => Users;
 

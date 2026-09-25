@@ -1,4 +1,5 @@
 using erpWeb.Core.Audit;
+using erpWeb.Core.Clients;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Parametres;
 using erpWeb.Core.Utilisateurs;
@@ -19,6 +20,8 @@ public interface IAppDbContext
     DbSet<Document> Documents { get; }
 
     DbSet<Parametre> Parametres { get; }
+
+    DbSet<Client> Clients { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
