@@ -89,6 +89,50 @@ public sealed class ParcoursApplicationTests : IClassFixture<FabriqueApplication
         Assert.Contains("/Compte/AccesRefuse", reponse.Headers.Location!.ToString(), StringComparison.Ordinal);
     }
 
+    [Fact]
+    public async Task Clients_AdministrateurCreeUnClient_LeClientApparaitDansLaListe()
+    {
+        var client = CreerClient();
+        await client.ConnecterAsync(FabriqueApplication.EmailAdministrateur, FabriqueApplication.MotDePasseAdministrateur);
+        var raisonSociale = $"Client {Guid.NewGuid():N}";
+
+        var creation = await client.EnvoyerFormulaireAsync("/Clients/Creer", new Dictionary<string, string>
+        {
+            ["RaisonSociale"] = raisonSociale,
+            ["CodePostal"] = "75001",
+            ["Ville"] = "Paris",
+        });
+
+        Assert.Equal(HttpStatusCode.Redirect, creation.StatusCode);
+        var liste = await client.GetAsync("/Clients");
+        Assert.Equal(HttpStatusCode.OK, liste.StatusCode);
+        Assert.Contains(raisonSociale, await liste.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Clients_CompteInscrit_ConsulteEtCreeDesClients()
+    {
+        var client = CreerClient();
+        var inscription = await client.EnvoyerFormulaireAsync("/Compte/Inscription", new Dictionary<string, string>
+        {
+            ["NomComplet"] = "Utilisateur Standard",
+            ["Email"] = $"standard-{Guid.NewGuid():N}@erpweb.local",
+            ["MotDePasse"] = "Standard#2026",
+            ["ConfirmationMotDePasse"] = "Standard#2026",
+        });
+        Assert.Equal(HttpStatusCode.Redirect, inscription.StatusCode);
+
+        var liste = await client.GetAsync("/Clients");
+        var creation = await client.EnvoyerFormulaireAsync("/Clients/Creer", new Dictionary<string, string>
+        {
+            ["RaisonSociale"] = $"Client {Guid.NewGuid():N}",
+        });
+
+        Assert.Equal(HttpStatusCode.OK, liste.StatusCode);
+        Assert.Equal(HttpStatusCode.Redirect, creation.StatusCode);
+        Assert.Equal("/Clients", creation.Headers.Location!.ToString());
+    }
+
     private HttpClient CreerClient()
         => _fabrique.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 }

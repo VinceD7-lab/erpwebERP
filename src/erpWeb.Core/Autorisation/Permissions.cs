@@ -33,6 +33,12 @@ public static class Permissions
         public const string Modifier = "Parametres.Modifier";
     }
 
+    public static class Clients
+    {
+        public const string Lire = "Clients.Lire";
+        public const string Gerer = "Clients.Gerer";
+    }
+
     public static IReadOnlyList<string> Toutes { get; } =
     [
         Utilisateurs.Lire,
@@ -44,5 +50,7 @@ public static class Permissions
         Documents.Supprimer,
         Parametres.Lire,
         Parametres.Modifier,
+        Clients.Lire,
+        Clients.Gerer,
     ];
 }
