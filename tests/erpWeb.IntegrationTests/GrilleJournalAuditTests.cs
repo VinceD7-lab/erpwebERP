@@ -33,6 +33,18 @@ public sealed class GrilleJournalAuditTests : IClassFixture<FabriqueApplication>
     }
 
     [Fact]
+    public async Task Entrees_NumeroPageTresGrand_RetourneUnePageVideSansErreurServeur()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.GetAsync($"/JournalAudit/Entrees?numeroPage={int.MaxValue}&taillePage=200");
+
+        Assert.Equal(HttpStatusCode.OK, reponse.StatusCode);
+        var racine = await LireRacineAsync(reponse);
+        Assert.Equal(0, racine.GetProperty("elements").GetArrayLength());
+    }
+
+    [Fact]
     public async Task Entrees_Administrateur_SerialiseLActionEnTexte()
     {
         var client = await CreerClientConnecteAsync();

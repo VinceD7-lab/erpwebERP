@@ -83,6 +83,21 @@ public sealed class ServiceRechercheJournalAuditTests : IDisposable
         Assert.Equal(3, resultat.NombreTotal);
     }
 
+    [Theory]
+    [InlineData(int.MaxValue, CriteresJournalAudit.TaillePageMaximum)]
+    [InlineData(10_737_420, CriteresJournalAudit.TaillePageMaximum)]
+    [InlineData(int.MaxValue, 1)]
+    public async Task RechercherAsync_NumeroPageTresGrand_RetourneUnePageVideSansDebordement(int numeroPage, int taillePage)
+    {
+        await AjouterEntreesAsync(3);
+
+        var resultat = await CreerService().RechercherAsync(new CriteresJournalAudit { NumeroPage = numeroPage, TaillePage = taillePage });
+
+        // Avant la borne, le décalage débordait en négatif et SQLite renvoyait la première page.
+        Assert.Empty(resultat.Elements);
+        Assert.Equal(3, resultat.NombreTotal);
+    }
+
     [Fact]
     public async Task RechercherAsync_SansResultat_RetourneUneSeulePage()
     {

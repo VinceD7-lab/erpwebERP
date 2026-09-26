@@ -24,8 +24,11 @@ public sealed class ServiceRechercheJournalAudit : IRechercheJournalAudit
 
     public async Task<ResultatPagine<EntreeJournalAuditDto>> RechercherAsync(CriteresJournalAudit criteres, CancellationToken jetonAnnulation = default)
     {
-        var numeroPage = Math.Max(criteres.NumeroPage, 1);
         var taillePage = Math.Clamp(criteres.TaillePage, 1, CriteresJournalAudit.TaillePageMaximum);
+
+        // Borne haute : (numeroPage - 1) * taillePage doit tenir dans un int, sinon le décalage
+        // devient négatif et SQL Server refuse l'OFFSET (SQLite, lui, le ramène silencieusement à 0).
+        var numeroPage = Math.Clamp(criteres.NumeroPage, 1, int.MaxValue / taillePage);
 
         var requete = Filtrer(_contexte.JournalAudit.AsNoTracking(), criteres);
         var nombreTotal = await requete.CountAsync(jetonAnnulation);
