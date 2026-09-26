@@ -17,10 +17,10 @@ internal sealed partial class ValidateurChampsClient : AbstractValidator<IChamps
 
         RuleFor(client => client.CodePostal).MaximumLength(LongueursClient.CodePostal).WithName("Code postal");
         RuleFor(client => client.CodePostal)
-            .Matches("^[0-9]{5}$").WithMessage("Le code postal français doit comporter 5 chiffres.")
+            .Matches(@"^[0-9]{5}\z").WithMessage("Le code postal français doit comporter 5 chiffres.")
             .When(client => !string.IsNullOrEmpty(client.CodePostal) && EstEnFrance(client.Pays));
         RuleFor(client => client.CodePostal)
-            .Matches("^[A-Za-z0-9][A-Za-z0-9 -]*$").WithMessage("Le code postal ne peut contenir que des lettres, des chiffres, des espaces et des tirets.")
+            .Matches(@"^[A-Za-z0-9][A-Za-z0-9 -]*\z").WithMessage("Le code postal ne peut contenir que des lettres, des chiffres, des espaces et des tirets.")
             .When(client => !string.IsNullOrEmpty(client.CodePostal) && !EstEnFrance(client.Pays));
 
         RuleFor(client => client.Ville).MaximumLength(LongueursClient.Ville).WithName("Ville");

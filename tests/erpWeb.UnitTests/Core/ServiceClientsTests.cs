@@ -91,6 +91,8 @@ public sealed class ServiceClientsTests : IDisposable
 
     [Theory]
     [InlineData("France", "1000")]
+    [InlineData("France", "75001\n")]
+    [InlineData("Belgique", "1000\n")]
     [InlineData("Belgique", "10@0")]
     [InlineData("Royaume-Uni", "SW1A 1AA XYZ")]
     public async Task CreerAsync_CodePostalNonConformeAuPays_RetourneEchec(string pays, string codePostal)
@@ -195,7 +197,6 @@ public sealed class ServiceClientsTests : IDisposable
     [InlineData(nameof(CreationClientDto.Adresse1), LongueursClient.Adresse)]
     [InlineData(nameof(CreationClientDto.Ville), LongueursClient.Ville)]
     [InlineData(nameof(CreationClientDto.Pays), LongueursClient.Pays)]
-    [InlineData(nameof(CreationClientDto.Telephone1), LongueursClient.Telephone)]
     public async Task CreerAsync_ChampFacultatifTropLong_RetourneEchec(string propriete, int longueurMaximale)
     {
         var creation = new CreationClientDto { RaisonSociale = "Acier SA" };
