@@ -41,6 +41,16 @@
       "library": "chart.js@4.5.1",
       "destination": "wwwroot/lib/chart.js/",
       "files": [ "dist/chart.umd.js" ]
+    },
+    {
+      "library": "vue@3.5.43",
+      "destination": "wwwroot/lib/vue/",
+      "files": [ "dist/vue.global.prod.js" ]
+    },
+    {
+      "library": "tabulator-tables@6.5.3",
+      "destination": "wwwroot/lib/tabulator/",
+      "files": [ "dist/js/tabulator.min.js", "dist/css/tabulator_bootstrap5.min.css" ]
     }
   ]
 }

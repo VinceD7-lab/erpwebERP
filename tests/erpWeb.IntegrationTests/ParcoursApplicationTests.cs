@@ -25,6 +25,7 @@ public sealed class ParcoursApplicationTests : IClassFixture<FabriqueApplication
     [InlineData("/Compte/Connexion")]
     [InlineData("/Compte/Inscription")]
     [InlineData("/css/site.css")]
+    [InlineData("/js/composants/montage.js")]
     public async Task PagesPubliques_UtilisateurAnonyme_SontAccessibles(string url)
     {
         var reponse = await CreerClient().GetAsync(url);
