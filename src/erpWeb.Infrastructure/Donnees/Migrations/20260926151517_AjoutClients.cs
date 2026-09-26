@@ -20,7 +20,7 @@ namespace erpWeb.Infrastructure.Donnees.Migrations
                     RaisonSociale = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Adresse1 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Adresse2 = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    CodePostal = table.Column<string>(type: "nvarchar(5)", maxLength: 5, nullable: true),
+                    CodePostal = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Ville = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Pays = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Telephone1 = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: true),

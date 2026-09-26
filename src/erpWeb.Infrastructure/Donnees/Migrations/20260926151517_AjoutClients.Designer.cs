@@ -12,7 +12,7 @@ using erpWeb.Infrastructure.Donnees;
 namespace erpWeb.Infrastructure.Donnees.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260925113209_AjoutClients")]
+    [Migration("20260926151517_AjoutClients")]
     partial class AjoutClients
     {
         /// <inheritdoc />
@@ -220,8 +220,8 @@ namespace erpWeb.Infrastructure.Donnees.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CodePostal")
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("CreePar")
                         .HasMaxLength(256)
