@@ -54,6 +54,64 @@ public sealed class ServiceClientsTests : IDisposable
     }
 
     [Fact]
+    public async Task CreerAsync_TelephonesAvecEspacesEtPoints_EnregistreLesNumerosSansSeparateurs()
+    {
+        var creation = new CreationClientDto { RaisonSociale = "Acier SA", Telephone1 = "01 02.03 04 05", Telephone2 = "+33 6.12.34.56.78" };
+
+        var resultat = await CreerService().CreerAsync(creation);
+
+        Assert.True(resultat.Reussi);
+        var client = await _base.Contexte.Clients.SingleAsync();
+        Assert.Equal("0102030405", client.Telephone1);
+        Assert.Equal("+33612345678", client.Telephone2);
+    }
+
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("01-02-03-04-05")]
+    [InlineData("01 02 03 04 05 06 07")]
+    public async Task CreerAsync_TelephoneInvalide_RetourneEchec(string telephone)
+    {
+        var resultat = await CreerService().CreerAsync(new CreationClientDto { RaisonSociale = "Acier SA", Telephone1 = telephone });
+
+        Assert.False(resultat.Reussi);
+    }
+
+    [Theory]
+    [InlineData("Royaume-Uni", "SW1A 1AA")]
+    [InlineData("Belgique", "1000")]
+    [InlineData("Canada", "K1A 0B1")]
+    [InlineData("france", "69001")]
+    public async Task CreerAsync_CodePostalConformeAuPays_EnregistreLeClient(string pays, string codePostal)
+    {
+        var resultat = await CreerService().CreerAsync(new CreationClientDto { RaisonSociale = "Acier SA", Pays = pays, CodePostal = codePostal });
+
+        Assert.True(resultat.Reussi);
+    }
+
+    [Theory]
+    [InlineData("France", "1000")]
+    [InlineData("Belgique", "10@0")]
+    [InlineData("Royaume-Uni", "SW1A 1AA XYZ")]
+    public async Task CreerAsync_CodePostalNonConformeAuPays_RetourneEchec(string pays, string codePostal)
+    {
+        var resultat = await CreerService().CreerAsync(new CreationClientDto { RaisonSociale = "Acier SA", Pays = pays, CodePostal = codePostal });
+
+        Assert.False(resultat.Reussi);
+    }
+
+    [Fact]
+    public async Task ModifierAsync_TelephoneAvecSeparateurs_EnregistreLeNumeroSansSeparateurs()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+
+        var resultat = await CreerService().ModifierAsync(new ModificationClientDto { Id = client.Id, RaisonSociale = "Acier SA", Telephone1 = "04.72.00.00.00" });
+
+        Assert.True(resultat.Reussi);
+        Assert.Equal("0472000000", (await _base.Contexte.Clients.AsNoTracking().SingleAsync()).Telephone1);
+    }
+
+    [Fact]
     public async Task CreerAsync_RaisonSocialeTropLongue_RetourneEchec()
     {
         var creation = new CreationClientDto { RaisonSociale = new string('a', LongueursClient.RaisonSociale + 1) };
