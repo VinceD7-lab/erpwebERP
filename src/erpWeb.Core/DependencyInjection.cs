@@ -1,4 +1,5 @@
 using erpWeb.Core.Audit;
+using erpWeb.Core.Clients;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Parametres;
 using erpWeb.Core.TableauDeBord;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<IRechercheJournalAudit, ServiceRechercheJournalAudit>();
         services.AddScoped<IServiceDocuments, ServiceDocuments>();
         services.AddScoped<IServiceParametres, ServiceParametres>();
+        services.AddScoped<IServiceClients, ServiceClients>();
 
         services.AddValidatorsFromAssembly(assemblage, ServiceLifetime.Scoped, includeInternalTypes: false);
 

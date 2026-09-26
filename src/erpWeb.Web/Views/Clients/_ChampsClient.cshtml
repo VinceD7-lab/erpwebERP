@@ -1,0 +1,43 @@
+@using erpWeb.Core.Clients
+@model IChampsClient
+
+<div class="mb-3">
+    <label asp-for="RaisonSociale" class="form-label">Raison sociale</label>
+    <input asp-for="RaisonSociale" class="form-control" maxlength="@LongueursClient.RaisonSociale" required />
+</div>
+<div class="mb-3">
+    <label asp-for="Adresse1" class="form-label">Adresse</label>
+    <input asp-for="Adresse1" class="form-control" maxlength="@LongueursClient.Adresse" autocomplete="address-line1" />
+</div>
+<div class="mb-3">
+    <label asp-for="Adresse2" class="form-label">Complément d'adresse</label>
+    <input asp-for="Adresse2" class="form-control" maxlength="@LongueursClient.Adresse" autocomplete="address-line2" />
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-12 col-sm-4">
+        <label asp-for="CodePostal" class="form-label">Code postal</label>
+        <input asp-for="CodePostal" class="form-control" maxlength="@LongueursClient.CodePostal" autocomplete="postal-code" />
+    </div>
+    <div class="col-12 col-sm-8">
+        <label asp-for="Ville" class="form-label">Ville</label>
+        <input asp-for="Ville" class="form-control" maxlength="@LongueursClient.Ville" autocomplete="address-level2" />
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Pays" class="form-label">Pays</label>
+    <input asp-for="Pays" class="form-control" maxlength="@LongueursClient.Pays" autocomplete="country-name" />
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-12 col-sm-6">
+        <label asp-for="Telephone1" class="form-label">Téléphone</label>
+        <input asp-for="Telephone1" type="tel" class="form-control" maxlength="@LongueursClient.SaisieTelephone" autocomplete="tel" />
+    </div>
+    <div class="col-12 col-sm-6">
+        <label asp-for="Telephone2" class="form-label">Téléphone secondaire</label>
+        <input asp-for="Telephone2" type="tel" class="form-control" maxlength="@LongueursClient.SaisieTelephone" />
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Email" class="form-label">Email</label>
+    <input asp-for="Email" type="email" class="form-control" maxlength="@LongueursClient.Email" autocomplete="email" />
+</div>
