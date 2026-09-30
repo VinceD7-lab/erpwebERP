@@ -10,13 +10,15 @@ $cheminProjetWeb = Join-Path $racineDepot "src/erpWeb.Web"
 $fichierPid = Join-Path $racineDepot ".erpweb-app.pid"
 $fichierJournal = Join-Path $racineDepot "erpweb-app.log"
 $fichierJournalErreurs = Join-Path $racineDepot "erpweb-app-erreurs.log"
+$dossierBinaires = Join-Path $racineDepot "src/erpWeb.Web/bin"
 
-if (Test-Path $fichierPid) {
-    $identifiantExistant = Get-Content $fichierPid -ErrorAction SilentlyContinue
-    if ($identifiantExistant -and (Get-Process -Id $identifiantExistant -ErrorAction SilentlyContinue)) {
-        Write-Host "L'application erpWeb est deja en cours d'execution (PID $identifiantExistant)."
-        exit 0
-    }
+$processusExistant = Get-CimInstance Win32_Process -Filter "Name = 'erpWeb.Web.exe'" |
+    Where-Object { $_.ExecutablePath -like "$dossierBinaires*" } |
+    Select-Object -First 1
+
+if ($processusExistant) {
+    Write-Host "L'application erpWeb est deja en cours d'execution (PID $($processusExistant.ProcessId))."
+    exit 0
 }
 
 Write-Host "Demarrage de erpWeb.Web..."
