@@ -489,3 +489,5 @@ $RECYCLE.BIN/
 App_Data/
 # Bibliothèques frontend restaurées par LibMan au build
 src/erpWeb.Web/wwwroot/lib/
+# Fichier PID genere par demarrer-application.ps1
+.erpweb-app.pid

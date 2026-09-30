@@ -25,7 +25,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUtilisateurCourant, UtilisateurCourantHttp>();
 
 builder.Services.AddCore();
-builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu);
+builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu, environnementDeveloppement: builder.Environment.IsDevelopment());
 
 builder.Services
     .AddIdentity<Utilisateur, IdentityRole>(options =>
@@ -75,6 +75,11 @@ var app = builder.Build();
 
 await app.Services.InitialiserDonneesAsync(
     appliquerMigrations: app.Configuration.GetValue<bool>("BaseDeDonnees:AppliquerMigrationsAuDemarrage"));
+
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.SemerClientsDemonstrationAsync(quantite: 25);
+}
 
 var cultureFrancaise = new CultureInfo("fr-FR");
 app.UseRequestLocalization(new RequestLocalizationOptions

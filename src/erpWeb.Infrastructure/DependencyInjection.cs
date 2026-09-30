@@ -22,7 +22,7 @@ public static class DependencyInjection
 {
     public const string NomChaineConnexion = "ParDefaut";
 
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string repertoireContenu)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string repertoireContenu, bool environnementDeveloppement)
     {
         var chaineConnexion = ObtenirChaineConnexion(configuration);
 
@@ -42,6 +42,12 @@ public static class DependencyInjection
         services.AddScoped<IExportJournalAudit, ExportJournalAuditExcel>();
         services.AddSingleton<IRechargementConfiguration, RechargementConfiguration>();
         services.AddScoped<InitialisateurDonnees>();
+
+        // Génération de clients fictifs (Bogus) : réservée au développement, jamais enregistrée en production.
+        if (environnementDeveloppement)
+        {
+            services.AddScoped<GenerateurClientsDemonstration>();
+        }
 
         return services;
     }
@@ -63,6 +69,21 @@ public static class DependencyInjection
         await using var portee = services.CreateAsyncScope();
         var initialisateur = portee.ServiceProvider.GetRequiredService<InitialisateurDonnees>();
         await initialisateur.InitialiserAsync(appliquerMigrations, jetonAnnulation);
+    }
+
+    /// <summary>
+    /// Génère des clients fictifs de démonstration. Sans effet si <see cref="AddInfrastructure"/> n'a pas été
+    /// appelé avec <c>environnementDeveloppement: true</c> : <see cref="GenerateurClientsDemonstration"/> n'est
+    /// alors pas enregistré, par conception.
+    /// </summary>
+    public static async Task SemerClientsDemonstrationAsync(this IServiceProvider services, int quantite, CancellationToken jetonAnnulation = default)
+    {
+        await using var portee = services.CreateAsyncScope();
+        var generateur = portee.ServiceProvider.GetService<GenerateurClientsDemonstration>();
+        if (generateur is not null)
+        {
+            await generateur.GenererAsync(quantite, jetonAnnulation);
+        }
     }
 
     private static string ObtenirChaineConnexion(IConfiguration configuration)
