@@ -25,7 +25,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUtilisateurCourant, UtilisateurCourantHttp>();
 
 builder.Services.AddCore();
-builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu);
+builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu, environnementDeveloppement: builder.Environment.IsDevelopment());
 
 builder.Services
     .AddIdentity<Utilisateur, IdentityRole>(options =>
