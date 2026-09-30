@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IExportJournalAudit, ExportJournalAuditExcel>();
         services.AddSingleton<IRechargementConfiguration, RechargementConfiguration>();
         services.AddScoped<InitialisateurDonnees>();
+        services.AddScoped<GenerateurClientsDemonstration>();
 
         return services;
     }
@@ -63,6 +64,14 @@ public static class DependencyInjection
         await using var portee = services.CreateAsyncScope();
         var initialisateur = portee.ServiceProvider.GetRequiredService<InitialisateurDonnees>();
         await initialisateur.InitialiserAsync(appliquerMigrations, jetonAnnulation);
+    }
+
+    /// <summary>Génère des clients fictifs de démonstration (environnement de développement uniquement).</summary>
+    public static async Task SemerClientsDemonstrationAsync(this IServiceProvider services, int quantite, CancellationToken jetonAnnulation = default)
+    {
+        await using var portee = services.CreateAsyncScope();
+        var generateur = portee.ServiceProvider.GetRequiredService<GenerateurClientsDemonstration>();
+        await generateur.GenererAsync(quantite, jetonAnnulation);
     }
 
     private static string ObtenirChaineConnexion(IConfiguration configuration)

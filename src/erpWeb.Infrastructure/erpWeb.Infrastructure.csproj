@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="MailKit" />
     <PackageReference Include="ClosedXML" />
+    <PackageReference Include="Bogus" />
   </ItemGroup>
 
   <ItemGroup>

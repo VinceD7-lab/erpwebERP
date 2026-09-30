@@ -76,6 +76,11 @@ var app = builder.Build();
 await app.Services.InitialiserDonneesAsync(
     appliquerMigrations: app.Configuration.GetValue<bool>("BaseDeDonnees:AppliquerMigrationsAuDemarrage"));
 
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.SemerClientsDemonstrationAsync(quantite: 25);
+}
+
 var cultureFrancaise = new CultureInfo("fr-FR");
 app.UseRequestLocalization(new RequestLocalizationOptions
 {
