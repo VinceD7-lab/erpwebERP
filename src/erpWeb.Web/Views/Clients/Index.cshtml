@@ -11,6 +11,9 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
+        @* Jeton lu par l'édition de ligne (site.js) et envoyé dans l'en-tête RequestVerificationToken. *@
+        @Html.AntiForgeryToken()
+        <div data-messages-ligne aria-live="polite"></div>
         <div class="table-responsive">
             <table class="table table-hover align-middle w-100" data-tableau>
                 <thead>
@@ -27,29 +30,7 @@
                 <tbody>
                     @foreach (var client in Model)
                     {
-                        <tr>
-                            <td>@client.RaisonSociale</td>
-                            <td>@client.CodePostal</td>
-                            <td>@client.Ville</td>
-                            <td>@client.Pays</td>
-                            <td class="text-nowrap">@client.Telephone1</td>
-                            <td class="text-break">
-                                @if (!string.IsNullOrEmpty(client.Email))
-                                {
-                                    <a href="mailto:@client.Email">@client.Email</a>
-                                }
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <div class="d-inline-flex gap-1" asp-permission="@Permissions.Clients.Gerer">
-                                    <a asp-action="Modifier" asp-route-id="@client.Id" class="btn btn-sm btn-outline-secondary" title="Modifier" aria-label="Modifier @client.RaisonSociale">
-                                        <i class="bi bi-pencil" aria-hidden="true"></i>
-                                    </a>
-                                    <form asp-action="Supprimer" asp-route-id="@client.Id" method="post" data-confirmation="Supprimer définitivement le client @client.RaisonSociale ?">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer" aria-label="Supprimer @client.RaisonSociale"><i class="bi bi-trash" aria-hidden="true"></i></button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                        <partial name="_LigneClient" model="client" />
                     }
                 </tbody>
             </table>

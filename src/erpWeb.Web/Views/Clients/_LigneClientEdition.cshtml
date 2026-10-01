@@ -1,0 +1,41 @@
+@using erpWeb.Core.Clients
+@model ModificationClientDto
+
+<tr data-ligne-editable data-id="@Model.Id" class="table-active">
+    <td>
+        <input asp-for="RaisonSociale" class="form-control form-control-sm" maxlength="@LongueursClient.RaisonSociale" required aria-label="Raison sociale" />
+        <div asp-validation-summary="ModelOnly" class="text-danger small mt-1" role="alert"></div>
+    </td>
+    <td>
+        <input asp-for="CodePostal" class="form-control form-control-sm" maxlength="@LongueursClient.CodePostal" autocomplete="postal-code" aria-label="Code postal" />
+    </td>
+    <td>
+        <input asp-for="Ville" class="form-control form-control-sm" maxlength="@LongueursClient.Ville" autocomplete="address-level2" aria-label="Ville" />
+    </td>
+    <td>
+        <input asp-for="Pays" class="form-control form-control-sm" maxlength="@LongueursClient.Pays" autocomplete="country-name" aria-label="Pays" />
+    </td>
+    <td>
+        <input asp-for="Telephone1" type="tel" class="form-control form-control-sm" maxlength="@LongueursClient.SaisieTelephone" autocomplete="tel" aria-label="Téléphone" />
+    </td>
+    <td>
+        <input asp-for="Email" type="email" class="form-control form-control-sm" maxlength="@LongueursClient.Email" autocomplete="email" aria-label="Email" />
+    </td>
+    <td class="text-end text-nowrap">
+        @* Champs absents de la liste : ModifierAsync remplace tous les champs, ils doivent être renvoyés tels quels. *@
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Adresse1" />
+        <input type="hidden" asp-for="Adresse2" />
+        <input type="hidden" asp-for="Telephone2" />
+        <div class="d-inline-flex gap-1">
+            <button type="button" class="btn btn-sm btn-success" title="Enregistrer" aria-label="Enregistrer les modifications"
+                    data-enregistrer-ligne data-url="@Url.Action("ModifierLigne")">
+                <i class="bi bi-check-lg" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" title="Annuler" aria-label="Annuler les modifications"
+                    data-annuler-ligne data-url="@Url.Action("LigneLecture", new { id = Model.Id })">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+    </td>
+</tr>
