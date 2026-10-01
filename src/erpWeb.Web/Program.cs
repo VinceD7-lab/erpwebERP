@@ -79,6 +79,7 @@ await app.Services.InitialiserDonneesAsync(
 if (app.Environment.IsDevelopment())
 {
     await app.Services.SemerClientsDemonstrationAsync(quantite: 25);
+    await app.Services.SemerEchantillonsDemonstrationAsync(nombreTournees: 15);
 }
 
 var cultureFrancaise = new CultureInfo("fr-FR");

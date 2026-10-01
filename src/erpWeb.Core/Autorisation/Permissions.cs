@@ -39,6 +39,11 @@ public static class Permissions
         public const string Gerer = "Clients.Gerer";
     }
 
+    public static class Echantillons
+    {
+        public const string Lire = "Echantillons.Lire";
+    }
+
     public static IReadOnlyList<string> Toutes { get; } =
     [
         Utilisateurs.Lire,
@@ -52,5 +57,6 @@ public static class Permissions
         Parametres.Modifier,
         Clients.Lire,
         Clients.Gerer,
+        Echantillons.Lire,
     ];
 }

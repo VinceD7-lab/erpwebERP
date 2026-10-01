@@ -1,5 +1,6 @@
 using Bogus;
 using erpWeb.Core.Clients;
+using erpWeb.Core.Echantillons;
 using erpWeb.UnitTests.Outils;
 using Microsoft.EntityFrameworkCore;
 
@@ -262,6 +263,26 @@ public sealed class ServiceClientsTests : IDisposable
         var resultat = await CreerService().SupprimerAsync(999);
 
         Assert.False(resultat.Reussi);
+    }
+
+    [Fact]
+    public async Task SupprimerAsync_ClientAvecEchantillons_RetourneEchecEtConserveLeClient()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+        _base.Contexte.Echantillons.Add(new Echantillon
+        {
+            CodeBarresAnonyme = "ECH-TEST-00001",
+            DatePrelevement = new DateTime(2026, 9, 1, 8, 0, 0),
+            Filiere = "Elevage",
+            IdClient = client.Id,
+        });
+        await _base.Contexte.SaveChangesAsync();
+        _base.Contexte.ChangeTracker.Clear();
+
+        var resultat = await CreerService().SupprimerAsync(client.Id);
+
+        Assert.False(resultat.Reussi);
+        Assert.True(await _base.Contexte.Clients.AnyAsync(autre => autre.Id == client.Id));
     }
 
     private ServiceClients CreerService()

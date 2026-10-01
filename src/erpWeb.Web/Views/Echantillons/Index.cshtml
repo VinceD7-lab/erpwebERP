@@ -1,0 +1,30 @@
+@using System.Text.Json
+@using erpWeb.Core.Clients
+@model IReadOnlyList<ClientDto>
+@{
+    ViewData["Title"] = "Résultats des échantillons";
+    var clients = JsonSerializer.Serialize(Model.Select(client => new { client.Id, client.RaisonSociale }));
+}
+
+<en-tete-page titre="Résultats des échantillons" icone="bi-clipboard-data"></en-tete-page>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @* Le template Vue est dans wwwroot/js/composants/tableau-resultats-echantillons.js : pas de syntaxe Vue en Razor. *@
+        <div data-composant-vue="tableau-resultats-echantillons"
+             data-url-donnees="@Url.Action("Resultats")"
+             data-clients="@clients"
+             data-taille-page="25">
+            <p class="small text-body-secondary" role="status">Chargement des résultats…</p>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/tabulator/dist/css/tabulator_bootstrap5.min.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/tabulator/dist/js/tabulator.min.js"></script>
+    <partial name="_ScriptsVue" />
+}
