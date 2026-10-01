@@ -108,8 +108,9 @@ export default {
         { title: 'UCL fourrage', field: 'valeurUclFourrage', hozAlign: 'right', headerSort: false, formatter: formaterNombre },
         { title: 'Validation', field: 'dateValidation', width: 140, headerSort: false, formatter: formaterValidation },
       ],
-      ajaxURLGenerator: (url, configuration, parametres) => this.construireUrl(url, parametres),
-      ajaxRequestFunc: (url) => obtenirJson(url),
+      // Pas d'ajaxURLGenerator : Tabulator ne l'appelle que dans son chargeur par défaut, que
+      // ajaxRequestFunc remplace. L'URL (page, tri, filtres) est donc construite ici.
+      ajaxRequestFunc: (url, configuration, parametres) => obtenirJson(this.construireUrl(url, parametres)),
       ajaxResponse: (url, parametres, reponse) => ({
         last_page: reponse.nombrePages,
         last_row: reponse.nombreTotal,
@@ -166,8 +167,13 @@ export default {
     },
 
     appliquerFiltres() {
-      // setData() sans argument relance la requête distante en repartant de la page 1.
-      this.grille.setData();
+      // setData() sans argument relance la requête distante sur la page courante : un filtre plus
+      // restrictif laisserait une page inexistante, on repart donc de la première.
+      if (this.grille.getPage() > 1) {
+        this.grille.setPage(1);
+      } else {
+        this.grille.setData();
+      }
     },
 
     reinitialiser() {
