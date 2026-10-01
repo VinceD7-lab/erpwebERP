@@ -1,7 +1,9 @@
 using erpWeb.Core.Audit;
 using erpWeb.Core.Clients;
 using erpWeb.Core.Documents;
+using erpWeb.Core.Echantillons;
 using erpWeb.Core.Parametres;
+using erpWeb.Core.Tournees;
 using erpWeb.Core.Utilisateurs;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +24,12 @@ public interface IAppDbContext
     DbSet<Parametre> Parametres { get; }
 
     DbSet<Client> Clients { get; }
+
+    DbSet<TourneeRamassage> TourneesRamassage { get; }
+
+    DbSet<Echantillon> Echantillons { get; }
+
+    DbSet<ResultatAgronomie> ResultatsAgronomie { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

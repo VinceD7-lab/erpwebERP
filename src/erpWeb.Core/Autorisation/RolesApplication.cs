@@ -9,6 +9,6 @@ public static class RolesApplication
         new Dictionary<string, IReadOnlyList<string>>
         {
             [Administrateur] = Permissions.Toutes,
-            [Utilisateur] = [Permissions.Documents.Lire, Permissions.Documents.Deposer, Permissions.Clients.Lire, Permissions.Clients.Gerer],
+            [Utilisateur] = [Permissions.Documents.Lire, Permissions.Documents.Deposer, Permissions.Clients.Lire, Permissions.Clients.Gerer, Permissions.Echantillons.Lire],
         };
 }

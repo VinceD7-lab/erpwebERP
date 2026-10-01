@@ -47,6 +47,7 @@ public static class DependencyInjection
         if (environnementDeveloppement)
         {
             services.AddScoped<GenerateurClientsDemonstration>();
+            services.AddScoped<GenerateurEchantillonsDemonstration>();
         }
 
         return services;
@@ -83,6 +84,20 @@ public static class DependencyInjection
         if (generateur is not null)
         {
             await generateur.GenererAsync(quantite, jetonAnnulation);
+        }
+    }
+
+    /// <summary>
+    /// Génère des tournées, échantillons et résultats fictifs, à appeler après <see cref="SemerClientsDemonstrationAsync"/>
+    /// (ils s'appuient sur les clients existants). Sans effet hors développement, comme le générateur de clients.
+    /// </summary>
+    public static async Task SemerEchantillonsDemonstrationAsync(this IServiceProvider services, int nombreTournees, CancellationToken jetonAnnulation = default)
+    {
+        await using var portee = services.CreateAsyncScope();
+        var generateur = portee.ServiceProvider.GetService<GenerateurEchantillonsDemonstration>();
+        if (generateur is not null)
+        {
+            await generateur.GenererAsync(nombreTournees, jetonAnnulation);
         }
     }
 
