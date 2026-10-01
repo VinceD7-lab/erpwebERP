@@ -61,6 +61,38 @@ public sealed class ClientsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [HttpGet]
+    [Authorize(Policy = Permissions.Clients.Gerer)]
+    public async Task<IActionResult> LigneLecture(int id, CancellationToken jetonAnnulation)
+    {
+        var client = await _serviceClients.ObtenirAsync(id, jetonAnnulation);
+        return client is null ? NotFound() : PartialView("_LigneClient", client);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = Permissions.Clients.Gerer)]
+    public async Task<IActionResult> LigneEdition(int id, CancellationToken jetonAnnulation)
+    {
+        var modification = await _serviceClients.ObtenirPourModificationAsync(id, jetonAnnulation);
+        return modification is null ? NotFound() : PartialView("_LigneClientEdition", modification);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = Permissions.Clients.Gerer)]
+    public async Task<IActionResult> ModifierLigne(ModificationClientDto modification, CancellationToken jetonAnnulation)
+    {
+        var resultat = await _serviceClients.ModifierAsync(modification, jetonAnnulation);
+        if (!resultat.Reussi)
+        {
+            ModelState.AjouterErreurs(resultat.Erreurs);
+            Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
+            return PartialView("_LigneClientEdition", modification);
+        }
+
+        var client = await _serviceClients.ObtenirAsync(modification.Id, jetonAnnulation);
+        return client is null ? NotFound() : PartialView("_LigneClient", client);
+    }
+
     [HttpPost]
     [Authorize(Policy = Permissions.Clients.Gerer)]
     public async Task<IActionResult> Supprimer(int id, CancellationToken jetonAnnulation)

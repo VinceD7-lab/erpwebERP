@@ -1,0 +1,40 @@
+@using Microsoft.AspNetCore.Authorization
+@model erpWeb.Core.Clients.ClientDto
+@inject IAuthorizationService ServiceAutorisation
+@{
+    var peutGerer = (await ServiceAutorisation.AuthorizeAsync(User, Permissions.Clients.Gerer)).Succeeded;
+}
+
+<tr data-ligne-editable data-id="@Model.Id">
+    <td>
+        @if (peutGerer)
+        {
+            <a asp-action="Modifier" asp-route-id="@Model.Id">@Model.RaisonSociale</a>
+        }
+        else
+        {
+            @Model.RaisonSociale
+        }
+    </td>
+    <td>@Model.CodePostal</td>
+    <td>@Model.Ville</td>
+    <td>@Model.Pays</td>
+    <td class="text-nowrap">@Model.Telephone1</td>
+    <td class="text-break">
+        @if (!string.IsNullOrEmpty(Model.Email))
+        {
+            <a href="mailto:@Model.Email">@Model.Email</a>
+        }
+    </td>
+    <td class="text-end text-nowrap">
+        <div class="d-inline-flex gap-1" asp-permission="@Permissions.Clients.Gerer">
+            <a asp-action="Modifier" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary" title="Modifier la ligne" aria-label="Modifier la ligne de @Model.RaisonSociale"
+               data-editer-ligne data-url="@Url.Action("LigneEdition", new { id = Model.Id })">
+                <i class="bi bi-pencil" aria-hidden="true"></i>
+            </a>
+            <form asp-action="Supprimer" asp-route-id="@Model.Id" method="post" data-confirmation="Supprimer définitivement le client @Model.RaisonSociale ?">
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer" aria-label="Supprimer @Model.RaisonSociale"><i class="bi bi-trash" aria-hidden="true"></i></button>
+            </form>
+        </div>
+    </td>
+</tr>
