@@ -4,6 +4,7 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 
@@ -33,6 +34,7 @@ public sealed class BaseDonneesTest : IDisposable
         Contexte = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlite(_connexion)
             .AddInterceptors(new IntercepteurAudit(UtilisateurCourant.Object, Horloge))
+            .ReplaceService<IModelCustomizer, PersonnalisationModeleSansContraintesCheck>()
             .Options);
         Contexte.Database.EnsureCreated();
     }
@@ -54,5 +56,31 @@ public sealed class BaseDonneesTest : IDisposable
     {
         Contexte.Dispose();
         _connexion.Dispose();
+    }
+
+    /// <summary>
+    /// SQLite stocke les decimal en TEXT : une contrainte CHECK numerique (BETWEEN) rejette alors toute valeur
+    /// non nulle. Les contraintes CHECK sont donc retirees du modele de test ; elles sont verifiees
+    /// sur SQL Server par les tests d'integration.
+    /// </summary>
+    private sealed class PersonnalisationModeleSansContraintesCheck : ModelCustomizer
+    {
+        public PersonnalisationModeleSansContraintesCheck(ModelCustomizerDependencies dependances)
+            : base(dependances)
+        {
+        }
+
+        public override void Customize(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.Customize(modelBuilder, context);
+
+            foreach (var typeEntite in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var contrainte in typeEntite.GetCheckConstraints().ToList())
+                {
+                    typeEntite.RemoveCheckConstraint(contrainte.ModelName);
+                }
+            }
+        }
     }
 }
