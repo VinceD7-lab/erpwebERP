@@ -36,6 +36,15 @@ public sealed class ServiceClients : IServiceClients
         return _mapper.Map<List<ClientDto>>(clients);
     }
 
+    public async Task<ClientDto?> ObtenirAsync(int id, CancellationToken jetonAnnulation = default)
+    {
+        var client = await _contexte.Clients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(client => client.Id == id, jetonAnnulation);
+
+        return client is null ? null : _mapper.Map<ClientDto>(client);
+    }
+
     public async Task<ModificationClientDto?> ObtenirPourModificationAsync(int id, CancellationToken jetonAnnulation = default)
     {
         var client = await _contexte.Clients

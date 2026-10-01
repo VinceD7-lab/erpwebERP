@@ -135,6 +135,24 @@ public sealed class ServiceClientsTests : IDisposable
     }
 
     [Fact]
+    public async Task ObtenirAsync_ClientExistant_RetourneLeClient()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+
+        var resultat = await CreerService().ObtenirAsync(client.Id);
+
+        Assert.NotNull(resultat);
+        Assert.Equal(client.Id, resultat.Id);
+        Assert.Equal("Acier SA", resultat.RaisonSociale);
+    }
+
+    [Fact]
+    public async Task ObtenirAsync_ClientInexistant_RetourneNull()
+    {
+        Assert.Null(await CreerService().ObtenirAsync(999));
+    }
+
+    [Fact]
     public async Task ObtenirPourModificationAsync_ClientExistant_RetourneLaSaisiePreremplie()
     {
         var client = await AjouterClientAsync("Acier SA");
