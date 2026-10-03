@@ -1,4 +1,5 @@
 using erpWeb.Core.Communs;
+using erpWeb.Core.Echantillons;
 using Microsoft.EntityFrameworkCore;
 
 namespace erpWeb.Core.Factures;
@@ -46,11 +47,25 @@ public sealed class ServiceGenerationFactures : IGenerationFactures
         }
         catch (DbUpdateException) when (echantillons.Count > 0)
         {
-            // Une requête concurrente a généré les mêmes factures (index uniques) : rien à faire, elles existent.
+            // Une requête concurrente a généré les mêmes factures (index uniques) : elles existent, rien à faire.
+            // Toute autre erreur (contrainte, troncature) remonte à l'appelant.
+            if (!await DejaFactureesAsync(echantillons, jetonAnnulation))
+            {
+                throw;
+            }
+
             return 0;
         }
 
         return echantillons.Count;
+    }
+
+    private async Task<bool> DejaFactureesAsync(List<Echantillon> echantillons, CancellationToken jetonAnnulation)
+    {
+        var identifiants = echantillons.Select(echantillon => echantillon.Id).ToList();
+        return await _contexte.Factures
+            .AsNoTracking()
+            .AnyAsync(facture => identifiants.Contains(facture.IdEchantillon), jetonAnnulation);
     }
 
     private async Task MarquerEnRetardAsync(CancellationToken jetonAnnulation)

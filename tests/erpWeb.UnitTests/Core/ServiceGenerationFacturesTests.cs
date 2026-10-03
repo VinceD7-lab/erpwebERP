@@ -4,6 +4,7 @@ using erpWeb.Core.Factures;
 using erpWeb.UnitTests.Outils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Moq;
 
 namespace erpWeb.UnitTests.Core;
 
@@ -236,6 +237,29 @@ public sealed class ServiceGenerationFacturesTests : IDisposable
         var facture = await _base.Contexte.Factures.AsNoTracking().SingleAsync();
         Assert.Equal(BaseDonneesTest.NomUtilisateurTest, facture.CreePar);
         Assert.Equal(BaseDonneesTest.DateReference.UtcDateTime, facture.DateCreation);
+    }
+
+    [Fact]
+    public async Task GenererManquantesAsync_ErreurNonConcurrente_RelanceLException()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+        var echantillon = await AjouterEchantillonAsync(client);
+        var calculateur = new Mock<ICalculateurFacture>();
+        calculateur.Setup(c => c.Calculer(It.IsAny<Echantillon>())).Returns(() => new Facture
+        {
+            IdEchantillon = echantillon.Id,
+            IdClient = 999_999,
+            DateFacture = new DateOnly(2026, 9, 15),
+            NomClient = "Client inexistant",
+            Devise = "EUR",
+            StatutFacture = StatutsFacture.Emise,
+        });
+        var service = new ServiceGenerationFactures(_base.Contexte, calculateur.Object, _base.Horloge);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => service.GenererManquantesAsync());
+
+        _base.Contexte.ChangeTracker.Clear();
+        Assert.Empty(await _base.Contexte.Factures.ToListAsync());
     }
 
     private ServiceGenerationFactures CreerService()

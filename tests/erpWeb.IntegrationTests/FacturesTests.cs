@@ -32,10 +32,9 @@ public sealed class FacturesTests : IClassFixture<FabriqueApplication>
     }
 
     [Fact]
-    public async Task Index_EchantillonAvecClientSansFacture_GenereLaFacture()
+    public async Task Index_EchantillonAvecClientSansFacture_NeCreeAucuneFacture()
     {
-        var code = NouveauCode();
-        var idEchantillon = await AjouterEchantillonAvecClientAsync(code);
+        var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
         var client = await CreerClientConnecteAsync();
 
         var reponse = await client.GetAsync("/Factures");
@@ -43,21 +42,86 @@ public sealed class FacturesTests : IClassFixture<FabriqueApplication>
         Assert.Equal(HttpStatusCode.OK, reponse.StatusCode);
         await using var contexte = CreerContexte(out var portee);
         using var _ = portee;
-        Assert.Equal(1, await contexte.Factures.CountAsync(facture => facture.IdEchantillon == idEchantillon));
+        Assert.Equal(0, await contexte.Factures.CountAsync(facture => facture.IdEchantillon == idEchantillon));
     }
 
     [Fact]
-    public async Task Index_AppelsRepetes_NeDupliquentPasLesFactures()
+    public async Task Generer_EchantillonAvecClientSansFacture_GenereLaFactureEtRedirigeVersIndex()
     {
         var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
         var client = await CreerClientConnecteAsync();
 
-        await client.GetAsync("/Factures");
-        await client.GetAsync("/Factures");
+        var reponse = await PosterGenererAsync(client);
+
+        Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+        Assert.Equal("/Factures", reponse.Headers.Location!.ToString().TrimEnd('/'), ignoreCase: true);
+        await using var contexte = CreerContexte(out var portee);
+        using var _ = portee;
+        Assert.Equal(1, await contexte.Factures.CountAsync(facture => facture.IdEchantillon == idEchantillon));
+    }
+
+    [Fact]
+    public async Task Generer_AppelsRepetes_NeDupliquentPasLesFactures()
+    {
+        var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
+        var client = await CreerClientConnecteAsync();
+
+        await PosterGenererAsync(client);
+        await PosterGenererAsync(client);
 
         await using var contexte = CreerContexte(out var portee);
         using var _ = portee;
         Assert.Equal(1, await contexte.Factures.CountAsync(facture => facture.IdEchantillon == idEchantillon));
+    }
+
+    [Fact]
+    public async Task Generer_Anonyme_RedirigeVersLaConnexionSansCreerDeFacture()
+    {
+        var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
+        var anonyme = CreerClient();
+        var jeton = await anonyme.ObtenirJetonAntiforgeryAsync("/Compte/Connexion");
+
+        var reponse = await anonyme.PostAsync("/Factures/Generer", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["__RequestVerificationToken"] = jeton }));
+
+        Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+        Assert.Contains("/Compte/Connexion", reponse.Headers.Location!.ToString(), StringComparison.Ordinal);
+        Assert.False(await ExisteFactureAsync(idEchantillon));
+    }
+
+    [Fact]
+    public async Task Generer_CompteSansPermission_RedirigeVersAccesRefuseSansCreerDeFacture()
+    {
+        var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
+        var client = await CreerClientSansPermissionAsync();
+
+        var reponse = await PosterGenererAsync(client, "/Compte/AccesRefuse");
+
+        Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+        Assert.Contains("/Compte/AccesRefuse", reponse.Headers.Location!.ToString(), StringComparison.Ordinal);
+        Assert.False(await ExisteFactureAsync(idEchantillon));
+    }
+
+    [Fact]
+    public async Task Generer_SansJetonAntiforgery_Retourne400SansCreerDeFacture()
+    {
+        var idEchantillon = await AjouterEchantillonAvecClientAsync(NouveauCode());
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.PostAsync("/Factures/Generer", new FormUrlEncodedContent(new Dictionary<string, string>()));
+
+        Assert.Equal(HttpStatusCode.BadRequest, reponse.StatusCode);
+        Assert.False(await ExisteFactureAsync(idEchantillon));
+    }
+
+    [Fact]
+    public async Task Generer_RequeteGet_Retourne404SansCreerDeFacture()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.GetAsync("/Factures/Generer");
+
+        Assert.Equal(HttpStatusCode.NotFound, reponse.StatusCode);
     }
 
     [Fact]
@@ -307,6 +371,21 @@ public sealed class FacturesTests : IClassFixture<FabriqueApplication>
         await using var contexte = CreerContexte(out var portee);
         using var _ = portee;
         Assert.Null((await contexte.Factures.SingleAsync(f => f.Id == identifiant)).Remise);
+    }
+
+    /// <summary>POST /Factures/Generer avec le jeton antiforgery lu sur une page (la liste par défaut).</summary>
+    private static async Task<HttpResponseMessage> PosterGenererAsync(HttpClient client, string pageDuJeton = "/Factures")
+    {
+        var jeton = await client.ObtenirJetonAntiforgeryAsync(pageDuJeton);
+        return await client.PostAsync("/Factures/Generer", new FormUrlEncodedContent(
+            new Dictionary<string, string> { ["__RequestVerificationToken"] = jeton }));
+    }
+
+    private async Task<bool> ExisteFactureAsync(int idEchantillon)
+    {
+        await using var contexte = CreerContexte(out var portee);
+        using var _ = portee;
+        return await contexte.Factures.AnyAsync(facture => facture.IdEchantillon == idEchantillon);
     }
 
     private static string NouveauCode() => $"ECH-{Guid.NewGuid():N}";

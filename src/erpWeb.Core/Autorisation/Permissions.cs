@@ -47,6 +47,7 @@ public static class Permissions
     public static class Factures
     {
         public const string Lire = "Factures.Lire";
+        public const string Generer = "Factures.Generer";
     }
 
     public static IReadOnlyList<string> Toutes { get; } =
@@ -64,5 +65,6 @@ public static class Permissions
         Clients.Gerer,
         Echantillons.Lire,
         Factures.Lire,
+        Factures.Generer,
     ];
 }

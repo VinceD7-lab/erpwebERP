@@ -1,6 +1,7 @@
 using erpWeb.Core.Autorisation;
 using erpWeb.Core.Clients;
 using erpWeb.Core.Factures;
+using erpWeb.Web.Modeles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,11 +27,20 @@ public sealed class FacturesController : Controller
         _serviceClients = serviceClients;
     }
 
-    /// <summary>Génère les factures manquantes, puis affiche la page ; la grille charge ses données par <see cref="Resultats"/>.</summary>
+    /// <summary>La grille charge ses données par <see cref="Resultats"/> ; les clients alimentent le filtre.</summary>
     public async Task<IActionResult> Index(CancellationToken jetonAnnulation)
+        => View(await _serviceClients.ListerAsync(jetonAnnulation));
+
+    /// <summary>Calcule et enregistre les factures des échantillons qui n'en ont pas encore (écriture : POST, jeton antiforgery).</summary>
+    [HttpPost]
+    [Authorize(Policy = Permissions.Factures.Generer)]
+    public async Task<IActionResult> Generer(CancellationToken jetonAnnulation)
     {
-        await _generationFactures.GenererManquantesAsync(jetonAnnulation);
-        return View(await _serviceClients.ListerAsync(jetonAnnulation));
+        var nombreCreees = await _generationFactures.GenererManquantesAsync(jetonAnnulation);
+        TempData[CleMessages.Succes] = nombreCreees == 0
+            ? "Toutes les factures sont déjà générées."
+            : $"{nombreCreees} facture(s) générée(s).";
+        return RedirectToAction(nameof(Index));
     }
 
     /// <summary>Page de résultats consommée par la grille (JSON).</summary>

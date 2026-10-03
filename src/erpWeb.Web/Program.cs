@@ -25,7 +25,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUtilisateurCourant, UtilisateurCourantHttp>();
 
-builder.Services.Configure<OptionsFacturation>(builder.Configuration.GetSection(OptionsFacturation.Section));
+builder.Services.AddOptions<OptionsFacturation>().Bind(builder.Configuration.GetSection(OptionsFacturation.Section)).ValidateOnStart();
 builder.Services.AddCore();
 builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu, environnementDeveloppement: builder.Environment.IsDevelopment());
 

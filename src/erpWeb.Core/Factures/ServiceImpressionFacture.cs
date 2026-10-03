@@ -17,12 +17,12 @@ public sealed class ServiceImpressionFacture : IServiceImpressionFacture
 
     public async Task<ImpressionFactureDto?> ObtenirAsync(int idFacture, CancellationToken jetonAnnulation = default)
     {
-        var facture = await _contexte.Factures
+        var donnees = await _contexte.Factures
             .AsNoTracking()
-            .Where(candidate => candidate.Id == idFacture)
+            .Where(facture => facture.Id == idFacture)
             .Select(ProjectionFacture.VersDto)
             .FirstOrDefaultAsync(jetonAnnulation);
 
-        return facture is null ? null : new ImpressionFactureDto(facture, _options.NomEmetteur, _options.AdresseEmetteur);
+        return donnees is null ? null : new ImpressionFactureDto(donnees, _options.NomEmetteur, _options.AdresseEmetteur);
     }
 }

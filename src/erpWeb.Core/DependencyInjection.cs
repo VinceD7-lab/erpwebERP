@@ -10,6 +10,7 @@ using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace erpWeb.Core;
 
@@ -26,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IServiceParametres, ServiceParametres>();
         services.AddScoped<IServiceClients, ServiceClients>();
         services.AddScoped<IRechercheResultatsEchantillons, ServiceRechercheResultatsEchantillons>();
+        services.AddSingleton<IValidateOptions<OptionsFacturation>, ValidateurOptionsFacturation>();
         services.AddScoped<ICalculateurFacture, CalculateurFacture>();
         services.AddScoped<IGenerationFactures, ServiceGenerationFactures>();
         services.AddScoped<IRechercheFactures, ServiceRechercheFactures>();
