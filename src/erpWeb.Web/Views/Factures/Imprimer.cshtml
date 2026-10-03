@@ -1,0 +1,97 @@
+@using System.Globalization
+@model erpWeb.Core.Factures.ImpressionFactureDto
+@{
+    var facture = Model.Facture;
+    ViewData["Title"] = $"Facture {facture.NumeroFacture:D6}";
+    var culture = CultureInfo.GetCultureInfo("fr-FR");
+    string Montant(decimal valeur) => valeur.ToString("N2", culture) + " " + facture.Devise;
+    string Date(DateOnly? valeur) => valeur?.ToString("d", culture) ?? "—";
+    var libelleStatut = facture.StatutFacture switch
+    {
+        "Payee" => "Payée",
+        "EnRetard" => "En retard",
+        _ => "Émise",
+    };
+}
+
+<en-tete-page titre="@ViewData["Title"]" icone="bi-receipt">
+    <button type="button" class="btn btn-primary" data-imprimer><i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimer</button>
+    <a class="btn btn-outline-secondary" asp-action="Index">Retour aux factures</a>
+</en-tete-page>
+
+<article class="facture card shadow-sm" aria-label="Facture @facture.NumeroFacture.ToString("D6")">
+    <div class="card-body p-4 p-lg-5">
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6">
+                <h2 class="h4 mb-1">@Model.NomEmetteur</h2>
+                <p class="mb-0 text-body-secondary" style="white-space: pre-line">@Model.AdresseEmetteur</p>
+            </div>
+            <div class="col-sm-6 text-sm-end">
+                <h2 class="h4 mb-1">Facture n° @facture.NumeroFacture.ToString("D6")</h2>
+                <p class="mb-0">Date : @Date(facture.DateFacture)</p>
+                <p class="mb-0">Échéance : @Date(facture.DateEcheance)</p>
+                <p class="mb-0">Statut : @libelleStatut</p>
+            </div>
+        </div>
+
+        <section class="mb-4" aria-labelledby="titreClient">
+            <h3 class="h6 text-uppercase text-body-secondary" id="titreClient">Facturé à</h3>
+            <p class="mb-0 fw-semibold">@facture.NomClient</p>
+            @if (!string.IsNullOrWhiteSpace(facture.AdresseFacturation))
+            {
+                <p class="mb-0">@facture.AdresseFacturation</p>
+            }
+            <p class="mb-0">@($"{facture.CodePostal} {facture.Ville}".Trim())</p>
+            @if (!string.IsNullOrWhiteSpace(facture.Pays))
+            {
+                <p class="mb-0">@facture.Pays</p>
+            }
+            <p class="mb-0 text-body-secondary">Code client : @facture.CodeClient</p>
+        </section>
+
+        <div class="table-responsive mb-4">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Désignation</th>
+                        <th scope="col" class="text-end">Montant HT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Analyse de l'échantillon @facture.CodeBarresAnonyme <span class="text-body-secondary">(@facture.Filiere)</span></td>
+                        <td class="text-end">@Montant(facture.MontantHorsTaxeAvantRemise)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-end mb-4">
+            <div class="col-sm-6 col-lg-5">
+                <dl class="row mb-0">
+                    @if (facture.Remise is > 0)
+                    {
+                        <dt class="col-6 fw-normal">Remise</dt>
+                        <dd class="col-6 text-end">@facture.Remise.Value.ToString("N2", culture) %</dd>
+                    }
+                    <dt class="col-6 fw-normal">Total HT</dt>
+                    <dd class="col-6 text-end">@Montant(facture.MontantHorsTaxe)</dd>
+                    <dt class="col-6 fw-normal">TVA (@facture.TauxTva.ToString("N2", culture) %)</dt>
+                    <dd class="col-6 text-end">@Montant(facture.MontantTva)</dd>
+                    <dt class="col-6 border-top pt-2">Total TTC</dt>
+                    <dd class="col-6 text-end fw-bold border-top pt-2">@Montant(facture.MontantToutesTaxesComprises)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <p class="mb-1">Mode de paiement : @(facture.ModePaiement ?? "—")</p>
+        @if (facture.DatePaiement is not null)
+        {
+            <p class="mb-1">Payée le : @Date(facture.DatePaiement)</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(facture.Commentaire))
+        {
+            <p class="mb-0 text-body-secondary" style="white-space: pre-line">@facture.Commentaire</p>
+        }
+    </div>
+</article>

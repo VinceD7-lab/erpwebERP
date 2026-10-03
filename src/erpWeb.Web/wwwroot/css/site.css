@@ -42,3 +42,24 @@ pre {
   max-height: 16rem;
   overflow: auto;
 }
+
+@media print {
+  /* Page de facture : seul l'encart de la facture est imprimé (les autres pages gardent leur impression normale). */
+  .barre-laterale,
+  header.navbar {
+    display: none !important;
+  }
+
+  main:has(> .facture) > :not(.facture) {
+    display: none !important;
+  }
+
+  main:has(> .facture) {
+    padding: 0 !important;
+  }
+
+  .facture {
+    border: 0;
+    box-shadow: none !important;
+  }
+}

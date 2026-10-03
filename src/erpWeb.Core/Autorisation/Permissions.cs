@@ -44,6 +44,11 @@ public static class Permissions
         public const string Lire = "Echantillons.Lire";
     }
 
+    public static class Factures
+    {
+        public const string Lire = "Factures.Lire";
+    }
+
     public static IReadOnlyList<string> Toutes { get; } =
     [
         Utilisateurs.Lire,
@@ -58,5 +63,6 @@ public static class Permissions
         Clients.Lire,
         Clients.Gerer,
         Echantillons.Lire,
+        Factures.Lire,
     ];
 }

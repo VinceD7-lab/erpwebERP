@@ -3,6 +3,7 @@ using erpWeb.Core.Clients;
 using erpWeb.Core.Communs;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
+using erpWeb.Core.Factures;
 using erpWeb.Core.Parametres;
 using erpWeb.Core.Tournees;
 using erpWeb.Core.Utilisateurs;
@@ -31,6 +32,8 @@ public sealed class AppDbContext : IdentityDbContext<Utilisateur>, IAppDbContext
     public DbSet<Echantillon> Echantillons => Set<Echantillon>();
 
     public DbSet<ResultatAgronomie> ResultatsAgronomie => Set<ResultatAgronomie>();
+
+    public DbSet<Facture> Factures => Set<Facture>();
 
     DbSet<Utilisateur> IAppDbContext.Utilisateurs => Users;
 

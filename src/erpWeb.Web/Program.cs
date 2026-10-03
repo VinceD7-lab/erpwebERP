@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using erpWeb.Core;
 using erpWeb.Core.Autorisation;
 using erpWeb.Core.Communs;
+using erpWeb.Core.Factures;
 using erpWeb.Core.Utilisateurs;
 using erpWeb.Infrastructure;
 using erpWeb.Web.Autorisation;
@@ -24,6 +25,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUtilisateurCourant, UtilisateurCourantHttp>();
 
+builder.Services.Configure<OptionsFacturation>(builder.Configuration.GetSection(OptionsFacturation.Section));
 builder.Services.AddCore();
 builder.Services.AddInfrastructure(builder.Configuration, repertoireContenu, environnementDeveloppement: builder.Environment.IsDevelopment());
 
