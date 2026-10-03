@@ -40,6 +40,9 @@
                         <li class="nav-item" asp-permission="@Permissions.Echantillons.Lire">
                             <a class="@ClasseLien("Echantillons")" asp-controller="Echantillons" asp-action="Index"><i class="bi bi-clipboard-data me-2" aria-hidden="true"></i>Échantillons</a>
                         </li>
+                        <li class="nav-item" asp-permission="@Permissions.Factures.Lire">
+                            <a class="@ClasseLien("Factures")" asp-controller="Factures" asp-action="Index"><i class="bi bi-receipt me-2" aria-hidden="true"></i>Factures</a>
+                        </li>
                         <li class="nav-item mt-3 small text-uppercase text-body-secondary px-3" asp-permission="@Permissions.Utilisateurs.Lire">Administration</li>
                         <li class="nav-item" asp-permission="@Permissions.Utilisateurs.Lire">
                             <a class="@ClasseLien("Utilisateurs")" asp-controller="Utilisateurs" asp-action="Index"><i class="bi bi-people me-2" aria-hidden="true"></i>Utilisateurs</a>

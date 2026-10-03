@@ -227,6 +227,12 @@
     const annuler = evenement.target.closest('[data-annuler-ligne]');
     if (annuler) {
       annulerEditionLigne(annuler);
+      return;
+    }
+
+    // Impression de la page courante (la mise en page d'impression est définie par @media print dans site.css).
+    if (evenement.target.closest('[data-imprimer]')) {
+      window.print();
     }
   });
 
