@@ -4,6 +4,7 @@ using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
 using erpWeb.Core.Parametres;
+using erpWeb.Core.PlanningAnalyses;
 using erpWeb.Core.Tournees;
 using erpWeb.Core.Utilisateurs;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,8 @@ public interface IAppDbContext
     DbSet<ResultatAgronomie> ResultatsAgronomie { get; }
 
     DbSet<Facture> Factures { get; }
+
+    DbSet<PlanningAnalyse> PlanningAnalyses { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,6 +1,7 @@
 using Bogus;
 using erpWeb.Core.Clients;
 using erpWeb.Core.Echantillons;
+using erpWeb.Core.PlanningAnalyses;
 using erpWeb.UnitTests.Outils;
 using Microsoft.EntityFrameworkCore;
 
@@ -283,6 +284,26 @@ public sealed class ServiceClientsTests : IDisposable
 
         Assert.False(resultat.Reussi);
         Assert.True(await _base.Contexte.Clients.AnyAsync(autre => autre.Id == client.Id));
+    }
+
+    [Fact]
+    public async Task SupprimerAsync_ClientPlanifie_RetourneEchecEtConserveLeClient()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+        _base.Contexte.PlanningAnalyses.Add(new PlanningAnalyse
+        {
+            IdClient = client.Id,
+            DateAnalyse = new DateOnly(2026, 9, 1),
+            TypeAnalyse = TypesAnalysePlanning.A,
+        });
+        await _base.Contexte.SaveChangesAsync();
+        _base.Contexte.ChangeTracker.Clear();
+
+        var resultat = await CreerService().SupprimerAsync(client.Id);
+
+        Assert.False(resultat.Reussi);
+        Assert.True(await _base.Contexte.Clients.AnyAsync(autre => autre.Id == client.Id));
+        Assert.True(await _base.Contexte.PlanningAnalyses.AnyAsync());
     }
 
     private ServiceClients CreerService()

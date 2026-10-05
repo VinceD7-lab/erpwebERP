@@ -5,6 +5,7 @@ using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
 using erpWeb.Core.Parametres;
+using erpWeb.Core.PlanningAnalyses;
 using erpWeb.Core.Tournees;
 using erpWeb.Core.Utilisateurs;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -34,6 +35,8 @@ public sealed class AppDbContext : IdentityDbContext<Utilisateur>, IAppDbContext
     public DbSet<ResultatAgronomie> ResultatsAgronomie => Set<ResultatAgronomie>();
 
     public DbSet<Facture> Factures => Set<Facture>();
+
+    public DbSet<PlanningAnalyse> PlanningAnalyses => Set<PlanningAnalyse>();
 
     DbSet<Utilisateur> IAppDbContext.Utilisateurs => Users;
 
