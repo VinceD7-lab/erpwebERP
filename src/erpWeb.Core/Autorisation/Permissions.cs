@@ -50,6 +50,12 @@ public static class Permissions
         public const string Generer = "Factures.Generer";
     }
 
+    public static class PlanningAnalyses
+    {
+        public const string Lire = "PlanningAnalyses.Lire";
+        public const string Gerer = "PlanningAnalyses.Gerer";
+    }
+
     public static IReadOnlyList<string> Toutes { get; } =
     [
         Utilisateurs.Lire,
@@ -66,5 +72,7 @@ public static class Permissions
         Echantillons.Lire,
         Factures.Lire,
         Factures.Generer,
+        PlanningAnalyses.Lire,
+        PlanningAnalyses.Gerer,
     ];
 }

@@ -1,0 +1,29 @@
+@using Microsoft.AspNetCore.Authorization
+@using erpWeb.Core.Autorisation
+@model erpWeb.Web.Controllers.PeriodePlanning
+@inject IAuthorizationService ServiceAutorisation
+@{
+    ViewData["Title"] = "Planning des analyses";
+    var peutGerer = (await ServiceAutorisation.AuthorizeAsync(User, Permissions.PlanningAnalyses.Gerer)).Succeeded;
+}
+
+<en-tete-page titre="Planning des analyses" icone="bi-calendar-week"></en-tete-page>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @Html.AntiForgeryToken()
+        @* Le template Vue est dans wwwroot/js/composants/planning-analyses.js : pas de syntaxe Vue en Razor. *@
+        <div data-composant-vue="planning-analyses"
+             data-url-donnees="@Url.Action("Mois")"
+             data-url-sauvegarde="@Url.Action("Sauvegarder")"
+             data-annee="@Model.Annee"
+             data-mois="@Model.Mois"
+             data-peut-gerer="@(peutGerer ? "true" : "false")">
+            <p class="small text-body-secondary" role="status">Chargement du planning…</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ScriptsVue" />
+}

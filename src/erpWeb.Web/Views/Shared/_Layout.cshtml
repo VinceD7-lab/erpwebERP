@@ -43,6 +43,9 @@
                         <li class="nav-item" asp-permission="@Permissions.Factures.Lire">
                             <a class="@ClasseLien("Factures")" asp-controller="Factures" asp-action="Index"><i class="bi bi-receipt me-2" aria-hidden="true"></i>Factures</a>
                         </li>
+                        <li class="nav-item" asp-permission="@Permissions.PlanningAnalyses.Lire">
+                            <a class="@ClasseLien("PlanningAnalyses")" asp-controller="PlanningAnalyses" asp-action="Index"><i class="bi bi-calendar-week me-2" aria-hidden="true"></i>Planning analyses</a>
+                        </li>
                         <li class="nav-item mt-3 small text-uppercase text-body-secondary px-3" asp-permission="@Permissions.Utilisateurs.Lire">Administration</li>
                         <li class="nav-item" asp-permission="@Permissions.Utilisateurs.Lire">
                             <a class="@ClasseLien("Utilisateurs")" asp-controller="Utilisateurs" asp-action="Index"><i class="bi bi-people me-2" aria-hidden="true"></i>Utilisateurs</a>

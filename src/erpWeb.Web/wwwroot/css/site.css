@@ -63,3 +63,29 @@ pre {
     box-shadow: none !important;
   }
 }
+
+/* Planning des analyses : première colonne figée, week-ends grisés. */
+.planning-analyses {
+  max-height: 70vh;
+}
+
+.planning-analyses th,
+.planning-analyses td {
+  white-space: nowrap;
+}
+
+.planning-analyses .planning-client {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--bs-body-bg);
+  min-width: 12rem;
+}
+
+.planning-analyses .planning-weekend {
+  background: var(--bs-secondary-bg);
+}
+
+.planning-analyses select {
+  min-width: 3.5rem;
+}

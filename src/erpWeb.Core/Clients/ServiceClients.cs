@@ -9,6 +9,7 @@ public sealed class ServiceClients : IServiceClients
 {
     private const string MessageIntrouvable = "Client introuvable.";
     private const string MessageClientAvecEchantillons = "Ce client ne peut pas être supprimé : des échantillons lui sont rattachés.";
+    private const string MessageClientPlanifie = "Ce client ne peut pas être supprimé : un planning d'analyses lui est rattaché.";
 
     private readonly IAppDbContext _contexte;
     private readonly IValidator<CreationClientDto> _validateurCreation;
@@ -101,6 +102,11 @@ public sealed class ServiceClients : IServiceClients
         if (await _contexte.Echantillons.AnyAsync(echantillon => echantillon.IdClient == id, jetonAnnulation))
         {
             return ResultatOperation.Echec(MessageClientAvecEchantillons);
+        }
+
+        if (await _contexte.PlanningAnalyses.AnyAsync(planning => planning.IdClient == id, jetonAnnulation))
+        {
+            return ResultatOperation.Echec(MessageClientPlanifie);
         }
 
         _contexte.Clients.Remove(client);

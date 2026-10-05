@@ -4,6 +4,7 @@ using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
 using erpWeb.Core.Parametres;
+using erpWeb.Core.PlanningAnalyses;
 using erpWeb.Core.TableauDeBord;
 using erpWeb.Core.Utilisateurs;
 using FluentValidation;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IGenerationFactures, ServiceGenerationFactures>();
         services.AddScoped<IRechercheFactures, ServiceRechercheFactures>();
         services.AddScoped<IServiceImpressionFacture, ServiceImpressionFacture>();
+        services.AddScoped<IServicePlanningAnalyses, ServicePlanningAnalyses>();
 
         services.AddValidatorsFromAssembly(assemblage, ServiceLifetime.Scoped, includeInternalTypes: false);
 
