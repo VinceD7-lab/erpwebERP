@@ -5,6 +5,7 @@
 // Vue possède les filtres, l'état de chargement et l'alerte ; Tabulator possède la grille.
 
 import { obtenirJson, urlConnexion } from './api.js';
+import { formaterDateTournee, formaterNombre, formaterStatut, formaterValidation } from './formateurs-echantillons.js';
 import { optionsGrilleParDefaut } from './grille.js';
 
 // Liste blanche : un champ hors de cette table n'est pas envoyé au serveur.
@@ -13,39 +14,6 @@ const champsTri = {
   filiere: 'Filiere',
   statutAnalyse: 'StatutAnalyse',
 };
-
-const apparencesStatut = {
-  Recu: { libelle: 'Reçu', couleur: 'secondary' },
-  EnCours: { libelle: 'En cours', couleur: 'primary' },
-  Termine: { libelle: 'Terminé', couleur: 'success' },
-};
-
-const formatDate = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short' });
-const formatDateHeure = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
-const formatNombre = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
-
-/** « 2026-09-15 » (DateOnly) est lu comme une date locale : pas de décalage de fuseau. */
-function formaterDateTournee(valeur) {
-  return valeur ? formatDate.format(new Date(valeur + 'T00:00')) : 'Sans tournée';
-}
-
-function formaterNombre(cellule) {
-  const valeur = cellule.getValue();
-  return valeur === null || valeur === undefined ? '' : formatNombre.format(valeur);
-}
-
-function formaterStatut(cellule) {
-  const apparence = apparencesStatut[cellule.getValue()] ?? { libelle: cellule.getValue(), couleur: 'secondary' };
-  const badge = document.createElement('span');
-  badge.className = 'badge text-bg-' + apparence.couleur;
-  badge.textContent = apparence.libelle;
-  return badge;
-}
-
-function formaterValidation(cellule) {
-  const valeur = cellule.getValue();
-  return valeur ? formatDateHeure.format(new Date(valeur)) : '';
-}
 
 /** Clé de regroupement : une ligne de groupe par couple (date de tournée, client). */
 function cleGroupe(echantillon) {

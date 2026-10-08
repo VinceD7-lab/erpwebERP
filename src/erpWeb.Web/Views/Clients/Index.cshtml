@@ -35,5 +35,31 @@
                 </tbody>
             </table>
         </div>
+
+        @* Détail du client sélectionné (clic sur une ligne, site.js) puis ses échantillons. *@
+        <section data-detail-client data-url-detail="@Url.Action("Detail")" aria-live="polite" hidden>
+            <hr class="my-4" />
+            <div data-detail-client-contenu></div>
+
+            <div asp-permission="@Permissions.Echantillons.Lire">
+                <hr class="my-4" />
+                <h3 class="h6">Échantillons du client</h3>
+                @* Le template Vue est dans wwwroot/js/composants/tableau-echantillons-client.js. *@
+                <div data-composant-vue="tableau-echantillons-client"
+                     data-url-donnees="@Url.Action("Resultats", "Echantillons")"
+                     data-taille-page="10">
+                    <p class="small text-body-secondary" role="status">Chargement des échantillons…</p>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/tabulator/dist/css/tabulator_bootstrap5.min.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/tabulator/dist/js/tabulator.min.js"></script>
+    <partial name="_ScriptsVue" />
+}
