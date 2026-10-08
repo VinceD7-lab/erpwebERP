@@ -37,9 +37,9 @@
         </div>
 
         @* Détail du client sélectionné (clic sur une ligne, site.js) puis ses échantillons. *@
-        <section data-detail-client data-url-detail="@Url.Action("Detail")" aria-live="polite" hidden>
+        <section data-detail-client data-url-detail="@Url.Action("Detail")" hidden>
             <hr class="my-4" />
-            <div data-detail-client-contenu></div>
+            <div data-detail-client-contenu aria-live="polite"></div>
 
             <div asp-permission="@Permissions.Echantillons.Lire">
                 <hr class="my-4" />

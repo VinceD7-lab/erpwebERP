@@ -98,3 +98,7 @@ tr[data-ligne-editable] {
 tr[data-ligne-editable] input {
   cursor: text;
 }
+
+.table > tbody > tr[aria-selected="true"] > * {
+  --bs-table-bg-state: var(--bs-table-active-bg);
+}

@@ -47,7 +47,17 @@ export default {
         { title: 'Temp. réception (°C)', field: 'temperatureReception', hozAlign: 'right', headerSort: false, formatter: formaterNombre },
         { title: 'Validation', field: 'dateValidation', width: 140, headerSort: false, formatter: formaterValidation },
       ],
-      ajaxRequestFunc: (url, configuration, parametres) => obtenirJson(this.construireUrl(url, parametres)),
+      ajaxRequestFunc: async (url, configuration, parametres) => {
+        const idClientDemande = this.idClient;
+        const reponse = await obtenirJson(this.construireUrl(url, parametres));
+        // Un autre client a été sélectionné entre-temps : sa requête a relancé la grille, cette réponse est périmée.
+        if (idClientDemande !== this.idClient) {
+          const perimee = new Error('Réponse périmée.');
+          perimee.name = 'ReponsePerimee';
+          throw perimee;
+        }
+        return reponse;
+      },
       ajaxResponse: (url, parametres, reponse) => ({
         last_page: reponse.nombrePages,
         last_row: reponse.nombreTotal,
@@ -64,6 +74,10 @@ export default {
       this.chargement = false;
     });
     this.grille.on('dataLoadError', (erreur) => {
+      // La requête du client sélectionné ensuite est en cours : ce n'est pas une erreur à afficher.
+      if (erreur.name === 'ReponsePerimee') {
+        return;
+      }
       this.chargement = false;
       this.codeErreur = erreur.statut ?? 0;
       this.erreur = erreur.message || 'Chargement impossible.';

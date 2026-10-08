@@ -127,9 +127,7 @@
 
   /** Remplace le contenu de la ligne en gardant son nœud <tr>, dont DataTables conserve la référence. */
   function appliquerLigne(ligne, nouvelleLigne) {
-    const selectionnee = ligne.classList.contains(classeLigneSelectionnee);
     ligne.className = nouvelleLigne.className;
-    ligne.classList.toggle(classeLigneSelectionnee, selectionnee);
     ligne.dataset.id = nouvelleLigne.dataset.id;
     ligne.replaceChildren(...nouvelleLigne.children);
   }
@@ -183,7 +181,6 @@
   // Sélection d'une ligne (clic gauche ou Entrée/Espace) : charge le détail du client sous le tableau puis annonce
   // la sélection par l'événement « client-selectionne » (detail.idClient), écouté par le tableau des échantillons.
   // Attributs : section[data-detail-client][data-url-detail], [data-detail-client-contenu].
-  const classeLigneSelectionnee = 'table-active';
   const selecteursInteractifs = 'a, button, input, select, textarea, form';
   let numeroSelection = 0;
 
@@ -233,12 +230,11 @@
       return;
     }
 
-    const selection = ligne.closest('table').querySelector('tr.' + classeLigneSelectionnee);
-    if (selection) {
-      selection.classList.remove(classeLigneSelectionnee);
+    // aria-selected sert de marqueur (et de style, voir site.css) : la classe table-active est déjà utilisée
+    // par le gabarit d'une ligne en cours d'édition ; attribut non touché quand la ligne est remplacée.
+    ligne.closest('table').querySelectorAll('tr[aria-selected="true"]').forEach(function (selection) {
       selection.removeAttribute('aria-selected');
-    }
-    ligne.classList.add(classeLigneSelectionnee);
+    });
     ligne.setAttribute('aria-selected', 'true');
 
     // Affichée avant l'événement : la grille des échantillons doit mesurer une zone visible.
@@ -250,7 +246,7 @@
   /** Recharge le détail si la ligne modifiée est celle qui est sélectionnée. */
   function rafraichirDetailSiSelectionnee(ligne) {
     const section = lireDetailClient();
-    if (section && ligne.classList.contains(classeLigneSelectionnee)) {
+    if (section && ligne.getAttribute('aria-selected') === 'true') {
       chargerDetailClient(section, ligne.dataset.id);
     }
   }
