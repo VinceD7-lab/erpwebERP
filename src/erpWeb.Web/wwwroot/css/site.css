@@ -89,3 +89,16 @@ pre {
 .planning-analyses select {
   min-width: 3.5rem;
 }
+
+/* Liste des clients : les lignes se sélectionnent au clic pour afficher le détail du client. */
+tr[data-ligne-editable] {
+  cursor: pointer;
+}
+
+tr[data-ligne-editable] input {
+  cursor: text;
+}
+
+.table > tbody > tr[aria-selected="true"] > * {
+  --bs-table-bg-state: var(--bs-table-active-bg);
+}

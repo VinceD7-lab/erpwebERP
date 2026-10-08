@@ -29,6 +29,53 @@ public sealed class EditionLigneClientsTests : IClassFixture<FabriqueApplication
     }
 
     [Fact]
+    public async Task Liste_Administrateur_AfficheLaSectionDetailAvecSeparateurEtTableauDesEchantillons()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var liste = await client.GetStringAsync("/Clients");
+
+        Assert.Contains("data-detail-client", liste, StringComparison.Ordinal);
+        Assert.Contains("<hr", liste, StringComparison.Ordinal);
+        Assert.Contains("data-composant-vue=\"tableau-echantillons-client\"", liste, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Detail_ClientExistant_RetourneLesDonneesAbsentesDeLaListe()
+    {
+        var client = await CreerClientConnecteAsync();
+        var (identifiant, raisonSociale) = await CreerClientMetierAsync(client);
+
+        var reponse = await client.GetAsync($"/Clients/Detail?id={identifiant}");
+
+        Assert.Equal(HttpStatusCode.OK, reponse.StatusCode);
+        var html = await reponse.Content.ReadAsStringAsync();
+        Assert.Contains(raisonSociale, html, StringComparison.Ordinal);
+        Assert.Contains("12 rue des Forges", html, StringComparison.Ordinal);
+        Assert.Contains("0607080910", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Detail_ClientInexistant_Retourne404()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.GetAsync("/Clients/Detail?id=999999");
+
+        Assert.Equal(HttpStatusCode.NotFound, reponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Detail_Anonyme_RedirigeVersLaConnexion()
+    {
+        var client = CreerClient();
+
+        var reponse = await client.GetAsync("/Clients/Detail?id=1");
+
+        Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+    }
+
+    [Fact]
     public async Task LigneEdition_ClientExistant_RetourneLesChampsAffichesEtLesChampsCaches()
     {
         var client = await CreerClientConnecteAsync();

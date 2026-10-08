@@ -43,7 +43,14 @@
   /** Active DataTables sur les tableaux marqués data-tableau. */
   function initialiserTableaux(racine) {
     racine.querySelectorAll('table[data-tableau]').forEach(function (tableau) {
-      instancesTableaux.set(tableau, new DataTable(tableau, { language: langueTableaux, order: [], pageLength: 25 }));
+      const options = { language: langueTableaux, order: [], pageLength: 25 };
+      // data-hauteur-defilement="29rem" : seul le corps du tableau défile, la recherche, le choix du nombre
+      // d'éléments, l'en-tête et la pagination restent affichés.
+      if (tableau.dataset.hauteurDefilement) {
+        options.scrollY = tableau.dataset.hauteurDefilement;
+        options.scrollCollapse = true;
+      }
+      instancesTableaux.set(tableau, new DataTable(tableau, options));
     });
   }
 
@@ -171,6 +178,79 @@
     }
   }
 
+  // Sélection d'une ligne (clic gauche ou Entrée/Espace) : charge le détail du client sous le tableau puis annonce
+  // la sélection par l'événement « client-selectionne » (detail.idClient), écouté par le tableau des échantillons.
+  // Attributs : section[data-detail-client][data-url-detail], [data-detail-client-contenu].
+  const selecteursInteractifs = 'a, button, input, select, textarea, form';
+  let numeroSelection = 0;
+
+  function lireDetailClient() {
+    return document.querySelector('[data-detail-client]');
+  }
+
+  async function chargerDetailClient(section, idClient) {
+    const numero = ++numeroSelection;
+    const contenu = section.querySelector('[data-detail-client-contenu]');
+    contenu.setAttribute('aria-busy', 'true');
+
+    try {
+      const reponse = await fetch(section.dataset.urlDetail + '?id=' + encodeURIComponent(idClient), {
+        headers: { 'X-Requested-With': 'fetch' }
+      });
+      if (reponse.redirected || reponse.status === 401) {
+        throw new Error('Session expirée. Reconnectez-vous puis réessayez.');
+      }
+      if (!reponse.ok) {
+        throw new Error('Le serveur a répondu ' + reponse.status + '.');
+      }
+
+      const html = await reponse.text();
+      // Une sélection plus récente a pris le relais : cette réponse est périmée.
+      if (numero === numeroSelection) {
+        contenu.innerHTML = html;
+      }
+    } catch (erreur) {
+      if (numero === numeroSelection) {
+        const alerte = document.createElement('div');
+        alerte.className = 'alert alert-warning py-2 small';
+        alerte.setAttribute('role', 'alert');
+        alerte.textContent = erreur.message;
+        contenu.replaceChildren(alerte);
+      }
+    } finally {
+      if (numero === numeroSelection) {
+        contenu.removeAttribute('aria-busy');
+      }
+    }
+  }
+
+  function selectionnerLigne(ligne) {
+    const section = lireDetailClient();
+    if (!section || ligne.querySelector('[data-enregistrer-ligne]')) {
+      return;
+    }
+
+    // aria-selected sert de marqueur (et de style, voir site.css) : la classe table-active est déjà utilisée
+    // par le gabarit d'une ligne en cours d'édition ; attribut non touché quand la ligne est remplacée.
+    ligne.closest('table').querySelectorAll('tr[aria-selected="true"]').forEach(function (selection) {
+      selection.removeAttribute('aria-selected');
+    });
+    ligne.setAttribute('aria-selected', 'true');
+
+    // Affichée avant l'événement : la grille des échantillons doit mesurer une zone visible.
+    section.hidden = false;
+    chargerDetailClient(section, ligne.dataset.id);
+    document.dispatchEvent(new CustomEvent('client-selectionne', { detail: { idClient: ligne.dataset.id } }));
+  }
+
+  /** Recharge le détail si la ligne modifiée est celle qui est sélectionnée. */
+  function rafraichirDetailSiSelectionnee(ligne) {
+    const section = lireDetailClient();
+    if (section && ligne.getAttribute('aria-selected') === 'true') {
+      chargerDetailClient(section, ligne.dataset.id);
+    }
+  }
+
   async function enregistrerLigne(bouton) {
     const ligne = bouton.closest('tr');
     const donnees = new FormData();
@@ -192,6 +272,7 @@
 
       if (resultat.valide) {
         synchroniserTableau(ligne);
+        rafraichirDetailSiSelectionnee(ligne);
         afficherMessageLigne('success', 'Les modifications de « ' + ligne.cells[0].textContent.trim() + ' » ont été enregistrées.');
       } else {
         focaliserPremierChamp(ligne);
@@ -230,6 +311,12 @@
       return;
     }
 
+    const ligneCliquee = evenement.target.closest('tr[data-ligne-editable]');
+    if (ligneCliquee && !evenement.target.closest(selecteursInteractifs)) {
+      selectionnerLigne(ligneCliquee);
+      return;
+    }
+
     // Impression de la page courante (la mise en page d'impression est définie par @media print dans site.css).
     if (evenement.target.closest('[data-imprimer]')) {
       window.print();
@@ -239,6 +326,12 @@
   // Entrée enregistre, Échap annule, uniquement sur une ligne en cours d'édition.
   document.addEventListener('keydown', function (evenement) {
     const ligne = evenement.target.closest('tr[data-ligne-editable]');
+    if (ligne && evenement.target === ligne && (evenement.key === 'Enter' || evenement.key === ' ')) {
+      evenement.preventDefault();
+      selectionnerLigne(ligne);
+      return;
+    }
+
     const enregistrer = ligne && ligne.querySelector('[data-enregistrer-ligne]');
     if (!enregistrer) {
       return;
@@ -261,8 +354,20 @@
     }
   });
 
+  /** Rend les lignes atteignables au clavier lorsque la page affiche un détail de ligne. */
+  function initialiserLignesSelectionnables(racine) {
+    if (!lireDetailClient()) {
+      return;
+    }
+
+    racine.querySelectorAll('tr[data-ligne-editable]').forEach(function (ligne) {
+      ligne.tabIndex = 0;
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     initialiserGraphiques(document);
     initialiserTableaux(document);
+    initialiserLignesSelectionnables(document);
   });
 })();

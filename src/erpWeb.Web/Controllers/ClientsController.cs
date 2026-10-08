@@ -20,6 +20,13 @@ public sealed class ClientsController : Controller
         => View(await _serviceClients.ListerAsync(jetonAnnulation));
 
     [HttpGet]
+    public async Task<IActionResult> Detail(int id, CancellationToken jetonAnnulation)
+    {
+        var client = await _serviceClients.ObtenirAsync(id, jetonAnnulation);
+        return client is null ? NotFound() : PartialView("_DetailClient", client);
+    }
+
+    [HttpGet]
     [Authorize(Policy = Permissions.Clients.Gerer)]
     public IActionResult Creer() => View(new CreationClientDto());
 
