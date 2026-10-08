@@ -43,7 +43,14 @@
   /** Active DataTables sur les tableaux marqués data-tableau. */
   function initialiserTableaux(racine) {
     racine.querySelectorAll('table[data-tableau]').forEach(function (tableau) {
-      instancesTableaux.set(tableau, new DataTable(tableau, { language: langueTableaux, order: [], pageLength: 25 }));
+      const options = { language: langueTableaux, order: [], pageLength: 25 };
+      // data-hauteur-defilement="29rem" : seul le corps du tableau défile, la recherche, le choix du nombre
+      // d'éléments, l'en-tête et la pagination restent affichés.
+      if (tableau.dataset.hauteurDefilement) {
+        options.scrollY = tableau.dataset.hauteurDefilement;
+        options.scrollCollapse = true;
+      }
+      instancesTableaux.set(tableau, new DataTable(tableau, options));
     });
   }
 
