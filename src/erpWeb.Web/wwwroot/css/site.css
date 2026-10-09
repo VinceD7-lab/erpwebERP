@@ -30,6 +30,11 @@ a {
   text-decoration: none;
 }
 
+.btn:not(.btn-sm):not(.btn-lg) {
+  --bs-btn-padding-y: 0.25rem;
+  --bs-btn-padding-x: 0.75rem;
+}
+
 body .tabulator,
 body .tabulator-popup-container,
 body .tabulator-edit-list,

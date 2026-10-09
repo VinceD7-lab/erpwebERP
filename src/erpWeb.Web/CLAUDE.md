@@ -13,7 +13,7 @@
 
 ## Vues
 
-- En-tête : `<en-tete-page titre="…" icone="bi-…">boutons</en-tete-page>`.
+- En-tête : `<en-tete-page titre="…">boutons</en-tete-page>`.
 - Masquer selon les droits : attribut `asp-permission="@Permissions.X.Y"` (liens, boutons, entrées de menu).
 - Listes : `<table class="table …" data-tableau>` (DataTables), `data-order` pour trier dates et tailles, `data-orderable="false"` sur la colonne Actions.
 - Actions destructrices : `<form … data-confirmation="Message ?">`.

@@ -7,7 +7,7 @@
     var clients = JsonSerializer.Serialize(Model.Select(client => new { client.Id, client.RaisonSociale }));
 }
 
-<en-tete-page titre="Factures des échantillons" icone="bi-receipt">
+<en-tete-page titre="Factures des échantillons">
     <form asp-action="Generer" method="post" asp-permission="@Permissions.Factures.Generer">
         <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Générer les factures manquantes</button>
     </form>
