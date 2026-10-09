@@ -13,17 +13,18 @@
 
 ## Vues
 
-- En-tête : `<en-tete-page titre="…" icone="bi-…">boutons</en-tete-page>`.
+- En-tête : `<en-tete-page titre="…">boutons</en-tete-page>`.
 - Masquer selon les droits : attribut `asp-permission="@Permissions.X.Y"` (liens, boutons, entrées de menu).
 - Listes : `<table class="table …" data-tableau>` (DataTables), `data-order` pour trier dates et tailles, `data-orderable="false"` sur la colonne Actions.
 - Actions destructrices : `<form … data-confirmation="Message ?">`.
 - Accessibilité : `aria-label` sur les boutons icônes, `scope="col"`, icônes en `aria-hidden="true"`.
 - Formulaires : lier directement les DTOs Core ; créer un ViewModel dans `Modeles/` seulement pour la présentation (`IFormFile`, connexion).
-- Menu : `Views/Shared/_Layout.cshtml`. Widgets : une vue par type de données dans `Views/Shared/Components/Widget/`.
+- Menu : `Views/Shared/_Layout.cshtml` (en-tête pleine largeur ; le bouton `data-basculer-menu` masque le menu latéral sur grand écran, état mémorisé en `localStorage`, ou ouvre le panneau sur petit écran). Widgets : une vue par type de données dans `Views/Shared/Components/Widget/`.
 
 ## Frontend
 
 - Bibliothèques déclarées dans `libman.json` (restaurées au build, `wwwroot/lib` non versionné). Aucun Node, aucun bundler : les bibliothèques sont des builds globaux, les composants des modules ES natifs.
+- Police Inter Variable hébergée localement : restaurée par `libman.json` (`wwwroot/lib/inter/`), déclarée en `@font-face` dans `site.css` et appliquée via `--bs-font-sans-serif`. Pas de CDN de polices.
 - JavaScript transverse dans `wwwroot/js/site.js` (pas de script inline), styles dans `wwwroot/css/site.css`.
 
 ### Îlots Vue
