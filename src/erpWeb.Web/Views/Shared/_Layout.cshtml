@@ -18,67 +18,70 @@
 <body data-racine="@Url.Content("~/")">
     @if (estConnecte)
     {
-        <div class="d-flex">
-            <aside class="offcanvas-lg offcanvas-start barre-laterale bg-body-tertiary border-end" tabindex="-1" id="barreLaterale" aria-labelledby="titreBarreLaterale">
-                <div class="offcanvas-header border-bottom">
-                    <a class="navbar-brand fw-semibold" id="titreBarreLaterale" asp-controller="TableauDeBord" asp-action="Index">
-                        <i class="bi bi-grid-1x2-fill text-primary me-2" aria-hidden="true"></i>erpWeb
-                    </a>
-                    <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#barreLaterale" aria-label="Fermer le menu"></button>
-                </div>
-                <nav class="offcanvas-body flex-column p-3" aria-label="Navigation principale">
-                    <ul class="nav nav-pills flex-column gap-1 w-100">
-                        <li class="nav-item">
-                            <a class="@ClasseLien("TableauDeBord")" asp-controller="TableauDeBord" asp-action="Index"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Tableau de bord</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.Documents.Lire">
-                            <a class="@ClasseLien("Documents")" asp-controller="Documents" asp-action="Index"><i class="bi bi-folder2-open me-2" aria-hidden="true"></i>Documents</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.Clients.Lire">
-                            <a class="@ClasseLien("Clients")" asp-controller="Clients" asp-action="Index"><i class="bi bi-building me-2" aria-hidden="true"></i>Clients</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.Echantillons.Lire">
-                            <a class="@ClasseLien("Echantillons")" asp-controller="Echantillons" asp-action="Index"><i class="bi bi-clipboard-data me-2" aria-hidden="true"></i>Échantillons</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.Factures.Lire">
-                            <a class="@ClasseLien("Factures")" asp-controller="Factures" asp-action="Index"><i class="bi bi-receipt me-2" aria-hidden="true"></i>Factures</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.PlanningAnalyses.Lire">
-                            <a class="@ClasseLien("PlanningAnalyses")" asp-controller="PlanningAnalyses" asp-action="Index"><i class="bi bi-calendar-week me-2" aria-hidden="true"></i>Planning analyses</a>
-                        </li>
-                        <li class="nav-item mt-3 small text-uppercase text-body-secondary px-3" asp-permission="@Permissions.Utilisateurs.Lire">Administration</li>
-                        <li class="nav-item" asp-permission="@Permissions.Utilisateurs.Lire">
-                            <a class="@ClasseLien("Utilisateurs")" asp-controller="Utilisateurs" asp-action="Index"><i class="bi bi-people me-2" aria-hidden="true"></i>Utilisateurs</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.JournalAudit.Lire">
-                            <a class="@ClasseLien("JournalAudit")" asp-controller="JournalAudit" asp-action="Index"><i class="bi bi-journal-text me-2" aria-hidden="true"></i>Journal d'audit</a>
-                        </li>
-                        <li class="nav-item" asp-permission="@Permissions.Parametres.Lire">
-                            <a class="@ClasseLien("Parametres")" asp-controller="Parametres" asp-action="Index"><i class="bi bi-gear me-2" aria-hidden="true"></i>Paramètres</a>
-                        </li>
-                    </ul>
-                </nav>
-            </aside>
-
-            <div class="flex-grow-1 d-flex flex-column min-vh-100 min-w-0">
-                <header class="navbar bg-body border-bottom px-3">
-                    <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#barreLaterale" aria-controls="barreLaterale" aria-label="Ouvrir le menu">
+        <div class="d-flex flex-column min-vh-100">
+            <header class="navbar sticky-top entete-application bg-body border-bottom px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary" type="button" data-basculer-menu aria-controls="barreLaterale" aria-expanded="true" aria-label="Afficher ou masquer le menu">
                         <i class="bi bi-list" aria-hidden="true"></i>
                     </button>
-                    <div class="dropdown ms-auto">
-                        <button class="btn btn-link text-body text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle me-1" aria-hidden="true"></i>@User.Identity!.Name
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <form asp-controller="Compte" asp-action="Deconnexion" method="post">
-                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Déconnexion</button>
-                                </form>
+                    <a class="navbar-brand fw-semibold" asp-controller="TableauDeBord" asp-action="Index">
+                        <i class="bi bi-grid-1x2-fill text-primary me-2" aria-hidden="true"></i>erpWeb
+                    </a>
+                </div>
+                <div class="dropdown ms-auto">
+                    <button class="btn btn-link text-body text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle me-1" aria-hidden="true"></i>@User.Identity!.Name
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form asp-controller="Compte" asp-action="Deconnexion" method="post">
+                                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Déconnexion</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+            <div class="d-flex flex-grow-1">
+                <aside class="offcanvas-lg offcanvas-start barre-laterale bg-body-tertiary border-end" tabindex="-1" id="barreLaterale" aria-labelledby="titreBarreLaterale">
+                    <div class="offcanvas-header border-bottom">
+                        <span class="fw-semibold" id="titreBarreLaterale">Menu</span>
+                        <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#barreLaterale" aria-label="Fermer le menu"></button>
+                    </div>
+                    <nav class="offcanvas-body flex-column p-3" aria-label="Navigation principale">
+                        <ul class="nav nav-pills flex-column gap-1 w-100">
+                            <li class="nav-item">
+                                <a class="@ClasseLien("TableauDeBord")" asp-controller="TableauDeBord" asp-action="Index"><i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Tableau de bord</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.Documents.Lire">
+                                <a class="@ClasseLien("Documents")" asp-controller="Documents" asp-action="Index"><i class="bi bi-folder2-open me-2" aria-hidden="true"></i>Documents</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.Clients.Lire">
+                                <a class="@ClasseLien("Clients")" asp-controller="Clients" asp-action="Index"><i class="bi bi-building me-2" aria-hidden="true"></i>Clients</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.Echantillons.Lire">
+                                <a class="@ClasseLien("Echantillons")" asp-controller="Echantillons" asp-action="Index"><i class="bi bi-clipboard-data me-2" aria-hidden="true"></i>Échantillons</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.Factures.Lire">
+                                <a class="@ClasseLien("Factures")" asp-controller="Factures" asp-action="Index"><i class="bi bi-receipt me-2" aria-hidden="true"></i>Factures</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.PlanningAnalyses.Lire">
+                                <a class="@ClasseLien("PlanningAnalyses")" asp-controller="PlanningAnalyses" asp-action="Index"><i class="bi bi-calendar-week me-2" aria-hidden="true"></i>Planning analyses</a>
+                            </li>
+                            <li class="nav-item mt-3 small text-uppercase text-body-secondary px-3" asp-permission="@Permissions.Utilisateurs.Lire">Administration</li>
+                            <li class="nav-item" asp-permission="@Permissions.Utilisateurs.Lire">
+                                <a class="@ClasseLien("Utilisateurs")" asp-controller="Utilisateurs" asp-action="Index"><i class="bi bi-people me-2" aria-hidden="true"></i>Utilisateurs</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.JournalAudit.Lire">
+                                <a class="@ClasseLien("JournalAudit")" asp-controller="JournalAudit" asp-action="Index"><i class="bi bi-journal-text me-2" aria-hidden="true"></i>Journal d'audit</a>
+                            </li>
+                            <li class="nav-item" asp-permission="@Permissions.Parametres.Lire">
+                                <a class="@ClasseLien("Parametres")" asp-controller="Parametres" asp-action="Index"><i class="bi bi-gear me-2" aria-hidden="true"></i>Paramètres</a>
                             </li>
                         </ul>
-                    </div>
-                </header>
-                <main class="p-3 p-lg-4 flex-grow-1">
+                    </nav>
+                </aside>
+
+                <main class="p-3 p-lg-4 flex-grow-1 min-w-0">
                     <partial name="_Messages" />
                     @RenderBody()
                 </main>

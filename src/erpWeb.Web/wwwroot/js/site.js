@@ -285,7 +285,49 @@
     }
   }
 
+  // Menu latéral : sur grand écran il se masque (état mémorisé), sur petit écran il s'ouvre en panneau (offcanvas).
+  const cleMenuLateralMasque = 'menu-lateral-masque';
+  const ecranLarge = window.matchMedia('(min-width: 992px)');
+
+  function lireMenuLateralMasque() {
+    try {
+      return localStorage.getItem(cleMenuLateralMasque) === 'true';
+    } catch (erreur) {
+      return false;
+    }
+  }
+
+  function appliquerMenuLateralMasque(masque) {
+    document.body.classList.toggle('menu-lateral-masque', masque);
+    const bouton = document.querySelector('[data-basculer-menu]');
+    if (bouton) {
+      bouton.setAttribute('aria-expanded', String(!masque));
+    }
+  }
+
+  function basculerMenuLateral() {
+    if (!ecranLarge.matches) {
+      bootstrap.Offcanvas.getOrCreateInstance(document.getElementById('barreLaterale')).toggle();
+      return;
+    }
+
+    const masque = !document.body.classList.contains('menu-lateral-masque');
+    appliquerMenuLateralMasque(masque);
+    try {
+      localStorage.setItem(cleMenuLateralMasque, String(masque));
+    } catch (erreur) {
+      // Stockage indisponible : le choix vaut pour la page courante seulement.
+    }
+  }
+
+  appliquerMenuLateralMasque(lireMenuLateralMasque());
+
   document.addEventListener('click', function (evenement) {
+    if (evenement.target.closest('[data-basculer-menu]')) {
+      basculerMenuLateral();
+      return;
+    }
+
     const bouton = evenement.target.closest('[data-rafraichir-widget]');
     if (bouton) {
       rafraichirWidget(bouton);

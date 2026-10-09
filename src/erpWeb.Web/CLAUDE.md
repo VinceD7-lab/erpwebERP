@@ -19,7 +19,7 @@
 - Actions destructrices : `<form … data-confirmation="Message ?">`.
 - Accessibilité : `aria-label` sur les boutons icônes, `scope="col"`, icônes en `aria-hidden="true"`.
 - Formulaires : lier directement les DTOs Core ; créer un ViewModel dans `Modeles/` seulement pour la présentation (`IFormFile`, connexion).
-- Menu : `Views/Shared/_Layout.cshtml`. Widgets : une vue par type de données dans `Views/Shared/Components/Widget/`.
+- Menu : `Views/Shared/_Layout.cshtml` (en-tête pleine largeur ; le bouton `data-basculer-menu` masque le menu latéral sur grand écran, état mémorisé en `localStorage`, ou ouvre le panneau sur petit écran). Widgets : une vue par type de données dans `Views/Shared/Components/Widget/`.
 
 ## Frontend
 
