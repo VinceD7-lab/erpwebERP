@@ -297,12 +297,22 @@
     }
   }
 
+  /** aria-expanded du bouton : menu non masqué sur grand écran, panneau ouvert sur petit écran. */
+  function synchroniserEtatBoutonMenu() {
+    const bouton = document.querySelector('[data-basculer-menu]');
+    if (!bouton) {
+      return;
+    }
+
+    const ouvert = ecranLarge.matches
+      ? !document.body.classList.contains('menu-lateral-masque')
+      : document.getElementById('barreLaterale').classList.contains('show');
+    bouton.setAttribute('aria-expanded', String(ouvert));
+  }
+
   function appliquerMenuLateralMasque(masque) {
     document.body.classList.toggle('menu-lateral-masque', masque);
-    const bouton = document.querySelector('[data-basculer-menu]');
-    if (bouton) {
-      bouton.setAttribute('aria-expanded', String(!masque));
-    }
+    synchroniserEtatBoutonMenu();
   }
 
   function basculerMenuLateral() {
@@ -321,6 +331,13 @@
   }
 
   appliquerMenuLateralMasque(lireMenuLateralMasque());
+
+  const panneauMenuLateral = document.getElementById('barreLaterale');
+  if (panneauMenuLateral) {
+    panneauMenuLateral.addEventListener('shown.bs.offcanvas', synchroniserEtatBoutonMenu);
+    panneauMenuLateral.addEventListener('hidden.bs.offcanvas', synchroniserEtatBoutonMenu);
+    ecranLarge.addEventListener('change', synchroniserEtatBoutonMenu);
+  }
 
   document.addEventListener('click', function (evenement) {
     if (evenement.target.closest('[data-basculer-menu]')) {
