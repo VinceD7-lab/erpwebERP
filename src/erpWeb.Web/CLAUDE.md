@@ -24,6 +24,7 @@
 ## Frontend
 
 - Bibliothèques déclarées dans `libman.json` (restaurées au build, `wwwroot/lib` non versionné). Aucun Node, aucun bundler : les bibliothèques sont des builds globaux, les composants des modules ES natifs.
+- Police Inter Variable hébergée localement : restaurée par `libman.json` (`wwwroot/lib/inter/`), déclarée en `@font-face` dans `site.css` et appliquée via `--bs-font-sans-serif`. Pas de CDN de polices.
 - JavaScript transverse dans `wwwroot/js/site.js` (pas de script inline), styles dans `wwwroot/css/site.css`.
 
 ### Îlots Vue
