@@ -26,6 +26,18 @@ body {
   background-color: var(--bs-tertiary-bg);
 }
 
+a {
+  text-decoration: none;
+}
+
+body .tabulator,
+body .tabulator-popup-container,
+body .tabulator-edit-list,
+body .tabulator .tabulator-alert .tabulator-alert-msg,
+body .tabulator-row .tabulator-responsive-collapse table {
+  font-size: var(--bs-body-font-size);
+}
+
 @media (min-width: 992px) {
   .barre-laterale {
     width: var(--largeur-barre-laterale);
