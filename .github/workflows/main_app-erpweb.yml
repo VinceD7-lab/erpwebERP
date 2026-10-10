@@ -23,11 +23,9 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
+      # Seul le projet Web est publié : publier la solution écrase le résultat avec ceux des autres projets.
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/erpWeb.Web/erpWeb.Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
