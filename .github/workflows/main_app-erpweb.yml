@@ -23,6 +23,14 @@ jobs:
         with:
           dotnet-version: '10.x'
 
+      # wwwroot/lib n'est pas versionné : les bibliothèques front sont restaurées avant la publication,
+      # sinon elles ne figurent pas dans le manifeste des fichiers statiques et le site s'affiche sans style.
+      - name: Restauration des bibliothèques front (LibMan)
+        run: |
+          dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+          libman restore
+        working-directory: src/erpWeb.Web
+
       # Seul le projet Web est publié : publier la solution écrase le résultat avec ceux des autres projets.
       - name: dotnet publish
         run: dotnet publish src/erpWeb.Web/erpWeb.Web.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
