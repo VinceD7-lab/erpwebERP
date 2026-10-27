@@ -29,13 +29,13 @@ public sealed class EditionLigneClientsTests : IClassFixture<FabriqueApplication
     }
 
     [Fact]
-    public async Task Liste_ParDefaut_AfficheDixClientsParPage()
+    public async Task Liste_DeclareUneTaillePageDeDix()
     {
         var client = await CreerClientConnecteAsync();
 
         var liste = await client.GetStringAsync("/Clients");
 
-        Assert.Contains("data-tableau data-taille-page=\"10\"", liste, StringComparison.Ordinal);
+        Assert.Contains("data-taille-page=\"10\"", liste, StringComparison.Ordinal);
     }
 
     [Fact]
