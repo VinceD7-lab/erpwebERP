@@ -9,7 +9,14 @@
     infoFiltered: '(filtrés sur _MAX_)',
     zeroRecords: 'Aucun élément correspondant',
     emptyTable: 'Aucune donnée disponible',
-    paginate: { first: 'Premier', previous: 'Précédent', next: 'Suivant', last: 'Dernier' }
+    // Chevrons en HTML ; les libellés textuels restent les noms accessibles des boutons.
+    paginate: {
+      first: '<i class="bi bi-chevron-double-left" aria-hidden="true"></i>',
+      previous: '<i class="bi bi-chevron-left" aria-hidden="true"></i>',
+      next: '<i class="bi bi-chevron-right" aria-hidden="true"></i>',
+      last: '<i class="bi bi-chevron-double-right" aria-hidden="true"></i>'
+    },
+    aria: { paginate: { first: 'Premier', previous: 'Précédent', next: 'Suivant', last: 'Dernier' } }
   };
 
   /** Crée les graphiques Chart.js décrits par l'attribut data-graphique (DonneesGraphique sérialisé). */
