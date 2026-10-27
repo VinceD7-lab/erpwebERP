@@ -17,7 +17,10 @@ public sealed class ClientsController : Controller
     }
 
     public async Task<IActionResult> Index(CancellationToken jetonAnnulation)
-        => View(await _serviceClients.ListerAsync(jetonAnnulation));
+    {
+        ViewData[CleSelection.Client] = TempData[CleSelection.Client];
+        return View(await _serviceClients.ListerAsync(jetonAnnulation));
+    }
 
     [HttpGet]
     public async Task<IActionResult> Detail(int id, CancellationToken jetonAnnulation)
@@ -49,6 +52,7 @@ public sealed class ClientsController : Controller
         }
 
         TempData[CleMessages.Succes] = $"Le client {creation.RaisonSociale} a été créé.";
+        TempData[CleSelection.Client] = resultat.Valeur;
         return RedirectToAction(nameof(Index));
     }
 

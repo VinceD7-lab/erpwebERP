@@ -76,6 +76,71 @@ public sealed class EditionLigneClientsTests : IClassFixture<FabriqueApplication
     }
 
     [Fact]
+    public async Task Liste_ClientExistant_AfficheLeBoutonDesDonneesComplementaires()
+    {
+        var client = await CreerClientConnecteAsync();
+        var (identifiant, _) = await CreerClientMetierAsync(client);
+
+        var liste = await client.GetStringAsync("/Clients");
+
+        Assert.Contains($"data-afficher-fiche data-url=\"/Clients/Fiche/{identifiant}\"", liste, StringComparison.Ordinal);
+        Assert.Contains("id=\"ficheClient\"", liste, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Fiche_ClientExistant_RetourneLesDonneesAbsentesDeLaLigne()
+    {
+        var client = await CreerClientConnecteAsync();
+        var (identifiant, _) = await CreerClientMetierAsync(client);
+
+        var reponse = await client.GetAsync($"/Clients/Fiche?id={identifiant}");
+
+        Assert.Equal(HttpStatusCode.OK, reponse.StatusCode);
+        var html = await reponse.Content.ReadAsStringAsync();
+        Assert.Contains("12 rue des Forges", html, StringComparison.Ordinal);
+        Assert.Contains("0607080910", html, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Fiche_ClientInexistant_Retourne404()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var reponse = await client.GetAsync("/Clients/Fiche?id=999999");
+
+        Assert.Equal(HttpStatusCode.NotFound, reponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Fiche_Anonyme_RedirigeVersLaConnexion()
+    {
+        var reponse = await CreerClient().GetAsync("/Clients/Fiche?id=1");
+
+        Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Liste_ApresCreation_DesigneLeClientCreeCommeSelectionInitialePuisSEfface()
+    {
+        var client = await CreerClientConnecteAsync();
+        var raisonSociale = $"Client {Guid.NewGuid():N}";
+        var creation = await client.EnvoyerFormulaireAsync("/Clients/Creer", new Dictionary<string, string>
+        {
+            ["RaisonSociale"] = raisonSociale,
+        });
+        Assert.Equal(HttpStatusCode.Redirect, creation.StatusCode);
+
+        var liste = await client.GetStringAsync("/Clients");
+
+        var selection = Regex.Match(liste, "data-selection-initiale=\"(\\d+)\"");
+        Assert.True(selection.Success, "Aucune sélection initiale après la création.");
+        Assert.Matches($"data-id=\"{selection.Groups[1].Value}\"[^>]*>\\s*<td>\\s*<a href=\"[^\"]*\">{Regex.Escape(raisonSociale)}</a>", liste);
+
+        var listeSuivante = await client.GetStringAsync("/Clients");
+        Assert.DoesNotMatch("data-selection-initiale=\"\\d+\"", listeSuivante);
+    }
+
+    [Fact]
     public async Task LigneEdition_ClientExistant_RetourneLesChampsAffichesEtLesChampsCaches()
     {
         var client = await CreerClientConnecteAsync();

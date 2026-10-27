@@ -178,6 +178,7 @@
       const resultat = await demanderLigne(bouton.dataset.url);
       appliquerLigne(ligne, resultat.ligne);
       synchroniserTableau(ligne);
+      ligne.focus({ preventScroll: true });
     } catch (erreur) {
       afficherMessageLigne('danger', erreur.message);
     } finally {
@@ -253,6 +254,68 @@
     document.dispatchEvent(new CustomEvent('client-selectionne', { detail: { idClient: ligne.dataset.id } }));
   }
 
+  /** Sélectionne la ligne, lui donne le focus clavier et la rend visible dans la zone de défilement. */
+  function activerLigne(ligne) {
+    selectionnerLigne(ligne);
+    // Les lignes des autres pages n'étaient pas dans le DOM à l'initialisation : elles n'ont pas encore de tabIndex.
+    ligne.tabIndex = 0;
+    ligne.focus({ preventScroll: true });
+    ligne.scrollIntoView({ block: 'nearest' });
+  }
+
+  /** Lignes de la page courante, dans l'ordre affiché (tri et recherche appliqués). */
+  function lignesDeLaPageCourante(tableau) {
+    return tableau.rows({ page: 'current', order: 'current', search: 'applied' }).nodes().toArray();
+  }
+
+  /** Déplace la sélection d'une ligne vers le haut (-1) ou le bas (1), en changeant de page aux extrémités. */
+  function deplacerSelection(ligne, sens) {
+    const tableau = instancesTableaux.get(ligne.closest('table'));
+    if (!tableau) {
+      return;
+    }
+
+    const lignes = lignesDeLaPageCourante(tableau);
+    const voisine = lignes[lignes.indexOf(ligne) + sens];
+    if (voisine) {
+      activerLigne(voisine);
+      return;
+    }
+
+    const informations = tableau.page.info();
+    const pageCible = informations.page + sens;
+    if (pageCible < 0 || pageCible >= informations.pages) {
+      return;
+    }
+
+    tableau.one('draw', function () {
+      const lignesCible = lignesDeLaPageCourante(tableau);
+      activerLigne(sens > 0 ? lignesCible[0] : lignesCible[lignesCible.length - 1]);
+    });
+    tableau.page(pageCible).draw('page');
+  }
+
+  /** Sélectionne la ligne désignée par data-selection-initiale (id), en affichant sa page : client tout juste créé. */
+  function selectionnerLigneInitiale(racine) {
+    const element = racine.querySelector('table[data-selection-initiale]');
+    const tableau = element && element.dataset.selectionInitiale && instancesTableaux.get(element);
+    if (!tableau) {
+      return;
+    }
+
+    // Les lignes hors de la page affichée sont retirées du DOM par DataTables : on les cherche via l'API.
+    const ligne = tableau.rows().nodes().toArray().find(function (noeud) {
+      return noeud.dataset.id === element.dataset.selectionInitiale;
+    });
+    const indice = ligne ? tableau.rows({ order: 'current', search: 'applied' }).nodes().toArray().indexOf(ligne) : -1;
+    if (indice < 0) {
+      return;
+    }
+
+    tableau.page(Math.floor(indice / tableau.page.len())).draw(false);
+    activerLigne(ligne);
+  }
+
   /** Affiche dans la fenêtre contextuelle #ficheClient les données complémentaires du client de la ligne. */
   async function afficherFicheClient(bouton) {
     const fenetre = document.getElementById('ficheClient');
@@ -306,6 +369,7 @@
       if (resultat.valide) {
         synchroniserTableau(ligne);
         rafraichirDetailSiSelectionnee(ligne);
+        ligne.focus({ preventScroll: true });
         afficherMessageLigne('success', 'Les modifications de « ' + ligne.cells[0].textContent.trim() + ' » ont été enregistrées.');
       } else {
         focaliserPremierChamp(ligne);
@@ -424,6 +488,23 @@
   // Entrée enregistre, Échap annule, uniquement sur une ligne en cours d'édition.
   document.addEventListener('keydown', function (evenement) {
     const ligne = evenement.target.closest('tr[data-ligne-editable]');
+    const ligneEnLecture = ligne && evenement.target === ligne && !ligne.querySelector('[data-enregistrer-ligne]');
+    if (ligneEnLecture && (evenement.key === 'ArrowUp' || evenement.key === 'ArrowDown')) {
+      evenement.preventDefault();
+      deplacerSelection(ligne, evenement.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+
+    // Entrée sur la ligne déjà sélectionnée : modification en place (sans le droit de gérer, il n'y a pas de bouton).
+    if (ligneEnLecture && evenement.key === 'Enter' && ligne.getAttribute('aria-selected') === 'true') {
+      const editer = ligne.querySelector('[data-editer-ligne]');
+      if (editer) {
+        evenement.preventDefault();
+        editer.click();
+      }
+      return;
+    }
+
     if (ligne && evenement.target === ligne && (evenement.key === 'Enter' || evenement.key === ' ')) {
       evenement.preventDefault();
       selectionnerLigne(ligne);
@@ -467,5 +548,6 @@
     initialiserGraphiques(document);
     initialiserTableaux(document);
     initialiserLignesSelectionnables(document);
+    selectionnerLigneInitiale(document);
   });
 })();
