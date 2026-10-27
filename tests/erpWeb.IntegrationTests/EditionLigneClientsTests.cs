@@ -84,7 +84,6 @@ public sealed class EditionLigneClientsTests : IClassFixture<FabriqueApplication
         var liste = await client.GetStringAsync("/Clients");
 
         Assert.Contains($"data-afficher-fiche data-url=\"/Clients/Fiche/{identifiant}\"", liste, StringComparison.Ordinal);
-        Assert.Contains("id=\"ficheClient\"", liste, StringComparison.Ordinal);
     }
 
     [Fact]

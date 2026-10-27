@@ -57,7 +57,10 @@
         options.scrollY = tableau.dataset.hauteurDefilement;
         options.scrollCollapse = true;
       }
-      instancesTableaux.set(tableau, new DataTable(tableau, options));
+      const instance = new DataTable(tableau, options);
+      // Changement de page, tri ou recherche : le bouton d'une info-bulle ouverte peut quitter le DOM.
+      instance.on('draw', function () { fermerFiches(); });
+      instancesTableaux.set(tableau, instance);
     });
   }
 
@@ -297,8 +300,12 @@
 
   /** Sélectionne la ligne désignée par data-selection-initiale (id), en affichant sa page : client tout juste créé. */
   function selectionnerLigneInitiale(racine) {
-    const element = racine.querySelector('table[data-selection-initiale]');
-    const tableau = element && element.dataset.selectionInitiale && instancesTableaux.get(element);
+    // Avec data-hauteur-defilement, DataTables clone la table (attributs compris) pour l'en-tête : seule la table
+    // d'origine porte une instance.
+    const element = Array.from(racine.querySelectorAll('table[data-selection-initiale]')).find(function (table) {
+      return instancesTableaux.has(table) && table.dataset.selectionInitiale;
+    });
+    const tableau = element && instancesTableaux.get(element);
     if (!tableau) {
       return;
     }
@@ -316,22 +323,52 @@
     activerLigne(ligne);
   }
 
-  /** Affiche dans la fenêtre contextuelle #ficheClient les données complémentaires du client de la ligne. */
-  async function afficherFicheClient(bouton) {
-    const fenetre = document.getElementById('ficheClient');
-    if (!fenetre) {
+  // Données complémentaires d'un client : info-bulle (Bootstrap Popover) ancrée au bouton [data-afficher-fiche]
+  // (data-url = fragment HTML du serveur), une seule ouverte à la fois, fermée par un clic ailleurs ou Échap.
+  function fermerFiches(boutonConserve) {
+    document.querySelectorAll('[data-afficher-fiche][aria-expanded="true"]').forEach(function (bouton) {
+      if (bouton !== boutonConserve) {
+        bootstrap.Popover.getInstance(bouton).hide();
+      }
+    });
+  }
+
+  async function basculerFicheClient(bouton) {
+    if (bouton.getAttribute('aria-expanded') === 'true') {
+      bootstrap.Popover.getInstance(bouton).hide();
       return;
     }
 
-    const contenu = fenetre.querySelector('[data-fiche-client-contenu]');
-    const titre = fenetre.querySelector('[data-fiche-client-titre]');
-    contenu.replaceChildren();
-    titre.textContent = bouton.closest('tr').cells[0].textContent.trim();
+    fermerFiches();
     bouton.disabled = true;
 
     try {
+      const contenu = document.createElement('div');
       contenu.innerHTML = await lireFragmentHtml(bouton.dataset.url);
-      bootstrap.Modal.getOrCreateInstance(fenetre).show();
+      // Le titre est un nœud texte : la raison sociale est une saisie utilisateur, jamais du HTML.
+      const titre = document.createElement('span');
+      titre.textContent = bouton.closest('tr').cells[0].textContent.trim();
+
+      const existante = bootstrap.Popover.getInstance(bouton);
+      if (existante) {
+        existante.dispose();
+      }
+
+      const infoBulle = new bootstrap.Popover(bouton, {
+        trigger: 'manual',
+        html: true,
+        container: 'body',
+        placement: 'left',
+        fallbackPlacements: ['top', 'bottom', 'right'],
+        customClass: 'fiche-client',
+        title: titre,
+        content: contenu
+      });
+      bouton.addEventListener('hidden.bs.popover', function () {
+        bouton.setAttribute('aria-expanded', 'false');
+      }, { once: true });
+      infoBulle.show();
+      bouton.setAttribute('aria-expanded', 'true');
     } catch (erreur) {
       afficherMessageLigne('danger', erreur.message);
     } finally {
@@ -450,8 +487,12 @@
 
     const fiche = evenement.target.closest('[data-afficher-fiche]');
     if (fiche) {
-      afficherFicheClient(fiche);
+      basculerFicheClient(fiche);
       return;
+    }
+
+    if (!evenement.target.closest('.fiche-client')) {
+      fermerFiches();
     }
 
     const editer = evenement.target.closest('[data-editer-ligne]');
@@ -487,6 +528,10 @@
 
   // Entrée enregistre, Échap annule, uniquement sur une ligne en cours d'édition.
   document.addEventListener('keydown', function (evenement) {
+    if (evenement.key === 'Escape') {
+      fermerFiches();
+    }
+
     const ligne = evenement.target.closest('tr[data-ligne-editable]');
     const ligneEnLecture = ligne && evenement.target === ligne && !ligne.querySelector('[data-enregistrer-ligne]');
     if (ligneEnLecture && (evenement.key === 'ArrowUp' || evenement.key === 'ArrowDown')) {

@@ -153,3 +153,8 @@ tr[data-ligne-editable] input {
 .table > tbody > tr[aria-selected="true"] > * {
   --bs-table-bg-state: var(--bs-table-active-bg);
 }
+
+/* Info-bulle des données complémentaires d'un client (site.js, bouton data-afficher-fiche). */
+.fiche-client {
+  --bs-popover-max-width: 22rem;
+}
