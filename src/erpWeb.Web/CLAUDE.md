@@ -15,7 +15,7 @@
 
 - En-tête : `<en-tete-page titre="…">boutons</en-tete-page>`.
 - Masquer selon les droits : attribut `asp-permission="@Permissions.X.Y"` (liens, boutons, entrées de menu).
-- Listes : `<table class="table …" data-tableau>` (DataTables), `data-order` pour trier dates et tailles, `data-orderable="false"` sur la colonne Actions.
+- Listes : `<table class="table …" data-tableau>` (DataTables), `data-order` pour trier dates et tailles, `data-orderable="false"` sur la colonne Actions. `data-taille-page="10"` fixe le nombre de lignes par page à l'ouverture (25 par défaut).
 - Actions destructrices : `<form … data-confirmation="Message ?">`.
 - Accessibilité : `aria-label` sur les boutons icônes, `scope="col"`, icônes en `aria-hidden="true"`.
 - Formulaires : lier directement les DTOs Core ; créer un ViewModel dans `Modeles/` seulement pour la présentation (`IFormFile`, connexion).
