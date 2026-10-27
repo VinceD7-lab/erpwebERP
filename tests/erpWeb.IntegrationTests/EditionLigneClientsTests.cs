@@ -29,6 +29,16 @@ public sealed class EditionLigneClientsTests : IClassFixture<FabriqueApplication
     }
 
     [Fact]
+    public async Task Liste_ParDefaut_AfficheDixClientsParPage()
+    {
+        var client = await CreerClientConnecteAsync();
+
+        var liste = await client.GetStringAsync("/Clients");
+
+        Assert.Contains("data-tableau data-taille-page=\"10\"", liste, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task Liste_Administrateur_AfficheLaSectionDetailAvecSeparateurEtTableauDesEchantillons()
     {
         var client = await CreerClientConnecteAsync();

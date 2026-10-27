@@ -50,7 +50,8 @@
   /** Active DataTables sur les tableaux marqués data-tableau. */
   function initialiserTableaux(racine) {
     racine.querySelectorAll('table[data-tableau]').forEach(function (tableau) {
-      const options = { language: langueTableaux, order: [], pageLength: 25 };
+      // data-taille-page="10" : nombre de lignes par page à l'ouverture (25 par défaut).
+      const options = { language: langueTableaux, order: [], pageLength: Number(tableau.dataset.taillePage) || 25 };
       // data-hauteur-defilement="29rem" : seul le corps du tableau défile, la recherche, le choix du nombre
       // d'éléments, l'en-tête et la pagination restent affichés.
       if (tableau.dataset.hauteurDefilement) {
