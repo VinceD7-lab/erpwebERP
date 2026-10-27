@@ -55,6 +55,19 @@
     </div>
 </div>
 
+@* Fenêtre contextuelle des données complémentaires d'un client (bouton data-afficher-fiche, site.js). *@
+<div class="modal fade" id="ficheClient" tabindex="-1" aria-labelledby="titreFicheClient" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="titreFicheClient" data-fiche-client-titre>Client</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body" data-fiche-client-contenu aria-live="polite"></div>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <link rel="stylesheet" href="~/lib/tabulator/dist/css/tabulator_bootstrap5.min.css" />
 }

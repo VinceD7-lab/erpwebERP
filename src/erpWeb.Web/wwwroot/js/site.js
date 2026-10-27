@@ -195,23 +195,26 @@
     return document.querySelector('[data-detail-client]');
   }
 
+  /** Récupère un fragment HTML (action « partial » du serveur) ; lève une erreur lisible en cas d'échec. */
+  async function lireFragmentHtml(url) {
+    const reponse = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+    if (reponse.redirected || reponse.status === 401) {
+      throw new Error('Session expirée. Reconnectez-vous puis réessayez.');
+    }
+    if (!reponse.ok) {
+      throw new Error('Le serveur a répondu ' + reponse.status + '.');
+    }
+
+    return reponse.text();
+  }
+
   async function chargerDetailClient(section, idClient) {
     const numero = ++numeroSelection;
     const contenu = section.querySelector('[data-detail-client-contenu]');
     contenu.setAttribute('aria-busy', 'true');
 
     try {
-      const reponse = await fetch(section.dataset.urlDetail + '?id=' + encodeURIComponent(idClient), {
-        headers: { 'X-Requested-With': 'fetch' }
-      });
-      if (reponse.redirected || reponse.status === 401) {
-        throw new Error('Session expirée. Reconnectez-vous puis réessayez.');
-      }
-      if (!reponse.ok) {
-        throw new Error('Le serveur a répondu ' + reponse.status + '.');
-      }
-
-      const html = await reponse.text();
+      const html = await lireFragmentHtml(section.dataset.urlDetail + '?id=' + encodeURIComponent(idClient));
       // Une sélection plus récente a pris le relais : cette réponse est périmée.
       if (numero === numeroSelection) {
         contenu.innerHTML = html;
@@ -248,6 +251,29 @@
     section.hidden = false;
     chargerDetailClient(section, ligne.dataset.id);
     document.dispatchEvent(new CustomEvent('client-selectionne', { detail: { idClient: ligne.dataset.id } }));
+  }
+
+  /** Affiche dans la fenêtre contextuelle #ficheClient les données complémentaires du client de la ligne. */
+  async function afficherFicheClient(bouton) {
+    const fenetre = document.getElementById('ficheClient');
+    if (!fenetre) {
+      return;
+    }
+
+    const contenu = fenetre.querySelector('[data-fiche-client-contenu]');
+    const titre = fenetre.querySelector('[data-fiche-client-titre]');
+    contenu.replaceChildren();
+    titre.textContent = bouton.closest('tr').cells[0].textContent.trim();
+    bouton.disabled = true;
+
+    try {
+      contenu.innerHTML = await lireFragmentHtml(bouton.dataset.url);
+      bootstrap.Modal.getOrCreateInstance(fenetre).show();
+    } catch (erreur) {
+      afficherMessageLigne('danger', erreur.message);
+    } finally {
+      bouton.disabled = false;
+    }
   }
 
   /** Recharge le détail si la ligne modifiée est celle qui est sélectionnée. */
@@ -355,6 +381,12 @@
     const bouton = evenement.target.closest('[data-rafraichir-widget]');
     if (bouton) {
       rafraichirWidget(bouton);
+      return;
+    }
+
+    const fiche = evenement.target.closest('[data-afficher-fiche]');
+    if (fiche) {
+      afficherFicheClient(fiche);
       return;
     }
 

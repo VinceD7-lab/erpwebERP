@@ -27,6 +27,13 @@ public sealed class ClientsController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> Fiche(int id, CancellationToken jetonAnnulation)
+    {
+        var client = await _serviceClients.ObtenirAsync(id, jetonAnnulation);
+        return client is null ? NotFound() : PartialView("_FicheClient", client);
+    }
+
+    [HttpGet]
     [Authorize(Policy = Permissions.Clients.Gerer)]
     public IActionResult Creer() => View(new CreationClientDto());
 
