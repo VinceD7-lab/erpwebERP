@@ -17,13 +17,23 @@ public sealed class ClientsController : Controller
     }
 
     public async Task<IActionResult> Index(CancellationToken jetonAnnulation)
-        => View(await _serviceClients.ListerAsync(jetonAnnulation));
+    {
+        ViewData[CleSelection.Client] = TempData[CleSelection.Client];
+        return View(await _serviceClients.ListerAsync(jetonAnnulation));
+    }
 
     [HttpGet]
     public async Task<IActionResult> Detail(int id, CancellationToken jetonAnnulation)
     {
         var client = await _serviceClients.ObtenirAsync(id, jetonAnnulation);
         return client is null ? NotFound() : PartialView("_DetailClient", client);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Fiche(int id, CancellationToken jetonAnnulation)
+    {
+        var client = await _serviceClients.ObtenirAsync(id, jetonAnnulation);
+        return client is null ? NotFound() : PartialView("_FicheClient", client);
     }
 
     [HttpGet]
@@ -42,6 +52,7 @@ public sealed class ClientsController : Controller
         }
 
         TempData[CleMessages.Succes] = $"Le client {creation.RaisonSociale} a été créé.";
+        TempData[CleSelection.Client] = resultat.Valeur;
         return RedirectToAction(nameof(Index));
     }
 

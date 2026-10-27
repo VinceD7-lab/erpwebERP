@@ -1,0 +1,13 @@
+@model erpWeb.Core.Clients.ClientDto
+
+@* Données du client absentes de la ligne du tableau, affichées dans la fenêtre contextuelle (site.js). *@
+<dl class="row mb-0">
+    <dt class="col-sm-4">Adresse 1</dt>
+    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Adresse1) ? "—" : Model.Adresse1)</dd>
+
+    <dt class="col-sm-4">Adresse 2</dt>
+    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Adresse2) ? "—" : Model.Adresse2)</dd>
+
+    <dt class="col-sm-4">Téléphone 2</dt>
+    <dd class="col-sm-8 mb-0">@(string.IsNullOrEmpty(Model.Telephone2) ? "—" : Model.Telephone2)</dd>
+</dl>

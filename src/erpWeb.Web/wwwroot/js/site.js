@@ -9,7 +9,14 @@
     infoFiltered: '(filtrés sur _MAX_)',
     zeroRecords: 'Aucun élément correspondant',
     emptyTable: 'Aucune donnée disponible',
-    paginate: { first: 'Premier', previous: 'Précédent', next: 'Suivant', last: 'Dernier' }
+    // Chevrons en HTML ; les libellés textuels restent les noms accessibles des boutons.
+    paginate: {
+      first: '<i class="bi bi-chevron-double-left" aria-hidden="true"></i>',
+      previous: '<i class="bi bi-chevron-left" aria-hidden="true"></i>',
+      next: '<i class="bi bi-chevron-right" aria-hidden="true"></i>',
+      last: '<i class="bi bi-chevron-double-right" aria-hidden="true"></i>'
+    },
+    aria: { paginate: { first: 'Premier', previous: 'Précédent', next: 'Suivant', last: 'Dernier' } }
   };
 
   /** Crée les graphiques Chart.js décrits par l'attribut data-graphique (DonneesGraphique sérialisé). */
@@ -50,7 +57,10 @@
         options.scrollY = tableau.dataset.hauteurDefilement;
         options.scrollCollapse = true;
       }
-      instancesTableaux.set(tableau, new DataTable(tableau, options));
+      const instance = new DataTable(tableau, options);
+      // Changement de page, tri ou recherche : le bouton d'une info-bulle ouverte peut quitter le DOM.
+      instance.on('draw', function () { fermerFiches(); });
+      instancesTableaux.set(tableau, instance);
     });
   }
 
@@ -171,6 +181,7 @@
       const resultat = await demanderLigne(bouton.dataset.url);
       appliquerLigne(ligne, resultat.ligne);
       synchroniserTableau(ligne);
+      ligne.focus({ preventScroll: true });
     } catch (erreur) {
       afficherMessageLigne('danger', erreur.message);
     } finally {
@@ -188,23 +199,26 @@
     return document.querySelector('[data-detail-client]');
   }
 
+  /** Récupère un fragment HTML (action « partial » du serveur) ; lève une erreur lisible en cas d'échec. */
+  async function lireFragmentHtml(url) {
+    const reponse = await fetch(url, { headers: { 'X-Requested-With': 'fetch' } });
+    if (reponse.redirected || reponse.status === 401) {
+      throw new Error('Session expirée. Reconnectez-vous puis réessayez.');
+    }
+    if (!reponse.ok) {
+      throw new Error('Le serveur a répondu ' + reponse.status + '.');
+    }
+
+    return reponse.text();
+  }
+
   async function chargerDetailClient(section, idClient) {
     const numero = ++numeroSelection;
     const contenu = section.querySelector('[data-detail-client-contenu]');
     contenu.setAttribute('aria-busy', 'true');
 
     try {
-      const reponse = await fetch(section.dataset.urlDetail + '?id=' + encodeURIComponent(idClient), {
-        headers: { 'X-Requested-With': 'fetch' }
-      });
-      if (reponse.redirected || reponse.status === 401) {
-        throw new Error('Session expirée. Reconnectez-vous puis réessayez.');
-      }
-      if (!reponse.ok) {
-        throw new Error('Le serveur a répondu ' + reponse.status + '.');
-      }
-
-      const html = await reponse.text();
+      const html = await lireFragmentHtml(section.dataset.urlDetail + '?id=' + encodeURIComponent(idClient));
       // Une sélection plus récente a pris le relais : cette réponse est périmée.
       if (numero === numeroSelection) {
         contenu.innerHTML = html;
@@ -243,6 +257,125 @@
     document.dispatchEvent(new CustomEvent('client-selectionne', { detail: { idClient: ligne.dataset.id } }));
   }
 
+  /** Sélectionne la ligne, lui donne le focus clavier et la rend visible dans la zone de défilement. */
+  function activerLigne(ligne) {
+    selectionnerLigne(ligne);
+    // Les lignes des autres pages n'étaient pas dans le DOM à l'initialisation : elles n'ont pas encore de tabIndex.
+    ligne.tabIndex = 0;
+    ligne.focus({ preventScroll: true });
+    ligne.scrollIntoView({ block: 'nearest' });
+  }
+
+  /** Lignes de la page courante, dans l'ordre affiché (tri et recherche appliqués). */
+  function lignesDeLaPageCourante(tableau) {
+    return tableau.rows({ page: 'current', order: 'current', search: 'applied' }).nodes().toArray();
+  }
+
+  /** Déplace la sélection d'une ligne vers le haut (-1) ou le bas (1), en changeant de page aux extrémités. */
+  function deplacerSelection(ligne, sens) {
+    const tableau = instancesTableaux.get(ligne.closest('table'));
+    if (!tableau) {
+      return;
+    }
+
+    const lignes = lignesDeLaPageCourante(tableau);
+    const voisine = lignes[lignes.indexOf(ligne) + sens];
+    if (voisine) {
+      activerLigne(voisine);
+      return;
+    }
+
+    const informations = tableau.page.info();
+    const pageCible = informations.page + sens;
+    if (pageCible < 0 || pageCible >= informations.pages) {
+      return;
+    }
+
+    tableau.one('draw', function () {
+      const lignesCible = lignesDeLaPageCourante(tableau);
+      activerLigne(sens > 0 ? lignesCible[0] : lignesCible[lignesCible.length - 1]);
+    });
+    tableau.page(pageCible).draw('page');
+  }
+
+  /** Sélectionne la ligne désignée par data-selection-initiale (id), en affichant sa page : client tout juste créé. */
+  function selectionnerLigneInitiale(racine) {
+    // Avec data-hauteur-defilement, DataTables clone la table (attributs compris) pour l'en-tête : seule la table
+    // d'origine porte une instance.
+    const element = Array.from(racine.querySelectorAll('table[data-selection-initiale]')).find(function (table) {
+      return instancesTableaux.has(table) && table.dataset.selectionInitiale;
+    });
+    const tableau = element && instancesTableaux.get(element);
+    if (!tableau) {
+      return;
+    }
+
+    // Les lignes hors de la page affichée sont retirées du DOM par DataTables : on les cherche via l'API.
+    const ligne = tableau.rows().nodes().toArray().find(function (noeud) {
+      return noeud.dataset.id === element.dataset.selectionInitiale;
+    });
+    const indice = ligne ? tableau.rows({ order: 'current', search: 'applied' }).nodes().toArray().indexOf(ligne) : -1;
+    if (indice < 0) {
+      return;
+    }
+
+    tableau.page(Math.floor(indice / tableau.page.len())).draw(false);
+    activerLigne(ligne);
+  }
+
+  // Données complémentaires d'un client : info-bulle (Bootstrap Popover) ancrée au bouton [data-afficher-fiche]
+  // (data-url = fragment HTML du serveur), une seule ouverte à la fois, fermée par un clic ailleurs ou Échap.
+  function fermerFiches(boutonConserve) {
+    document.querySelectorAll('[data-afficher-fiche][aria-expanded="true"]').forEach(function (bouton) {
+      if (bouton !== boutonConserve) {
+        bootstrap.Popover.getInstance(bouton).hide();
+      }
+    });
+  }
+
+  async function basculerFicheClient(bouton) {
+    if (bouton.getAttribute('aria-expanded') === 'true') {
+      bootstrap.Popover.getInstance(bouton).hide();
+      return;
+    }
+
+    fermerFiches();
+    bouton.disabled = true;
+
+    try {
+      const contenu = document.createElement('div');
+      contenu.innerHTML = await lireFragmentHtml(bouton.dataset.url);
+      // Le titre est un nœud texte : la raison sociale est une saisie utilisateur, jamais du HTML.
+      const titre = document.createElement('span');
+      titre.textContent = bouton.closest('tr').cells[0].textContent.trim();
+
+      const existante = bootstrap.Popover.getInstance(bouton);
+      if (existante) {
+        existante.dispose();
+      }
+
+      const infoBulle = new bootstrap.Popover(bouton, {
+        trigger: 'manual',
+        html: true,
+        container: 'body',
+        placement: 'left',
+        fallbackPlacements: ['top', 'bottom', 'right'],
+        customClass: 'fiche-client',
+        title: titre,
+        content: contenu
+      });
+      bouton.addEventListener('hidden.bs.popover', function () {
+        bouton.setAttribute('aria-expanded', 'false');
+      }, { once: true });
+      infoBulle.show();
+      bouton.setAttribute('aria-expanded', 'true');
+    } catch (erreur) {
+      afficherMessageLigne('danger', erreur.message);
+    } finally {
+      bouton.disabled = false;
+    }
+  }
+
   /** Recharge le détail si la ligne modifiée est celle qui est sélectionnée. */
   function rafraichirDetailSiSelectionnee(ligne) {
     const section = lireDetailClient();
@@ -273,6 +406,7 @@
       if (resultat.valide) {
         synchroniserTableau(ligne);
         rafraichirDetailSiSelectionnee(ligne);
+        ligne.focus({ preventScroll: true });
         afficherMessageLigne('success', 'Les modifications de « ' + ligne.cells[0].textContent.trim() + ' » ont été enregistrées.');
       } else {
         focaliserPremierChamp(ligne);
@@ -351,6 +485,16 @@
       return;
     }
 
+    const fiche = evenement.target.closest('[data-afficher-fiche]');
+    if (fiche) {
+      basculerFicheClient(fiche);
+      return;
+    }
+
+    if (!evenement.target.closest('.fiche-client')) {
+      fermerFiches();
+    }
+
     const editer = evenement.target.closest('[data-editer-ligne]');
     if (editer) {
       evenement.preventDefault();
@@ -384,7 +528,28 @@
 
   // Entrée enregistre, Échap annule, uniquement sur une ligne en cours d'édition.
   document.addEventListener('keydown', function (evenement) {
+    if (evenement.key === 'Escape') {
+      fermerFiches();
+    }
+
     const ligne = evenement.target.closest('tr[data-ligne-editable]');
+    const ligneEnLecture = ligne && evenement.target === ligne && !ligne.querySelector('[data-enregistrer-ligne]');
+    if (ligneEnLecture && (evenement.key === 'ArrowUp' || evenement.key === 'ArrowDown')) {
+      evenement.preventDefault();
+      deplacerSelection(ligne, evenement.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+
+    // Entrée sur la ligne déjà sélectionnée : modification en place (sans le droit de gérer, il n'y a pas de bouton).
+    if (ligneEnLecture && evenement.key === 'Enter' && ligne.getAttribute('aria-selected') === 'true') {
+      const editer = ligne.querySelector('[data-editer-ligne]');
+      if (editer) {
+        evenement.preventDefault();
+        editer.click();
+      }
+      return;
+    }
+
     if (ligne && evenement.target === ligne && (evenement.key === 'Enter' || evenement.key === ' ')) {
       evenement.preventDefault();
       selectionnerLigne(ligne);
@@ -428,5 +593,6 @@
     initialiserGraphiques(document);
     initialiserTableaux(document);
     initialiserLignesSelectionnables(document);
+    selectionnerLigneInitiale(document);
   });
 })();

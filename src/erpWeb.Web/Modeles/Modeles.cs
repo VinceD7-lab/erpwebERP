@@ -9,6 +9,12 @@ public static class CleMessages
     public const string Erreur = "MessageErreur";
 }
 
+/// <summary>Clé TempData/ViewData de la ligne à sélectionner à l'ouverture d'une liste (après une création).</summary>
+public static class CleSelection
+{
+    public const string Client = "SelectionClient";
+}
+
 public static class ExtensionsModelState
 {
     public static void AjouterErreurs(this ModelStateDictionary etatModele, IEnumerable<string> erreurs)
