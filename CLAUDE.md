@@ -51,7 +51,9 @@ dotnet run --project src/erpWeb.Web
 ## Azure DevOps (backlog)
 
 - Le backlog est dans Azure Boards (`https://dev.azure.com/vinced9/`), le code est sur GitHub
-- Serveur MCP `azure-devops` (`npx -y @azure-devops/mcp vinced9`) : lire le work item (description, critères d'acceptation, commentaires) avant de coder
+- Serveur MCP `azure-devops` déclaré dans `.mcp.json` (organisation `vinced9`, projet `erpweberp`, option `-a pat`) : lire le work item (description, critères d'acceptation, commentaires) avant de coder
+- Prérequis par développeur : Node.js 20+ et variable d'environnement utilisateur `PERSONAL_ACCESS_TOKEN` contenant le PAT Azure DevOps encodé en base64 avec le préfixe `:` (`[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(":<PAT>"))`) ; droits du PAT limités à *Work Items (Read & write)* ; ne jamais committer le jeton
+- `.mcp.json` utilise `cmd /c npx` (Windows natif) ; sous macOS/Linux, remplacer par `"command": "npx"` et retirer `"/c", "npx"` des arguments
 - Une évolution = un work item = une branche = une PR ; le type de work item détermine le type de branche (Bug → `correctif/`, User Story/Feature → `fonctionnalite/`, Task technique → `technique/`)
 - Référencer le work item avec `AB#<id>` dans chaque commit (`feat(clients): filtrer par ville (AB#123)`) et dans la description de la PR (`Fixes AB#123` pour le fermer)
 - Ne changer l'état d'un work item (Active, Resolved) que sur demande explicite de l'utilisateur
