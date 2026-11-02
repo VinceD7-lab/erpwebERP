@@ -1,5 +1,6 @@
 using erpWeb.Core.Audit;
 using erpWeb.Core.Clients;
+using erpWeb.Core.DevisClients;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
@@ -36,6 +37,10 @@ public interface IAppDbContext
     DbSet<Facture> Factures { get; }
 
     DbSet<PlanningAnalyse> PlanningAnalyses { get; }
+
+    DbSet<Devis> Devis { get; }
+
+    DbSet<LigneDevis> LignesDevis { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

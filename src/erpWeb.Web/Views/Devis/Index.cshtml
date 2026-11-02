@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Devis";
+}
+
+<en-tete-page titre="Devis des clients"></en-tete-page>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @* Le template Vue est dans wwwroot/js/composants/tableau-devis.js : pas de syntaxe Vue en Razor. *@
+        <div data-composant-vue="tableau-devis"
+             data-url-donnees="@Url.Action("Resultats")"
+             data-taille-page="10">
+            <p class="small text-body-secondary" role="status">Chargement des devis…</p>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/tabulator/dist/css/tabulator_bootstrap5.min.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/tabulator/dist/js/tabulator.min.js"></script>
+    <partial name="_ScriptsVue" />
+}

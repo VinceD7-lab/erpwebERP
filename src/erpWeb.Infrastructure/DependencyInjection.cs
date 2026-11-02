@@ -48,6 +48,7 @@ public static class DependencyInjection
         {
             services.AddScoped<GenerateurClientsDemonstration>();
             services.AddScoped<GenerateurEchantillonsDemonstration>();
+            services.AddScoped<GenerateurDevisDemonstration>();
         }
 
         return services;
@@ -98,6 +99,20 @@ public static class DependencyInjection
         if (generateur is not null)
         {
             await generateur.GenererAsync(nombreTournees, jetonAnnulation);
+        }
+    }
+
+    /// <summary>
+    /// Génère des devis fictifs, à appeler après <see cref="SemerClientsDemonstrationAsync"/> (ils s'appuient sur
+    /// les clients existants). Sans effet hors développement, comme les autres générateurs.
+    /// </summary>
+    public static async Task SemerDevisDemonstrationAsync(this IServiceProvider services, int quantite, CancellationToken jetonAnnulation = default)
+    {
+        await using var portee = services.CreateAsyncScope();
+        var generateur = portee.ServiceProvider.GetService<GenerateurDevisDemonstration>();
+        if (generateur is not null)
+        {
+            await generateur.GenererAsync(quantite, jetonAnnulation);
         }
     }
 
