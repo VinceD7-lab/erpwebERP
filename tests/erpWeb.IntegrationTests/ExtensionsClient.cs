@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace erpWeb.IntegrationTests;
 
@@ -28,6 +29,27 @@ internal static partial class ExtensionsClient
         });
 
         Assert.Equal(HttpStatusCode.Redirect, reponse.StatusCode);
+    }
+
+    /// <summary>Client connecté avec un compte créé par l'administrateur sans aucun rôle, donc sans permission.</summary>
+    public static async Task<HttpClient> CreerClientSansPermissionAsync(this FabriqueApplication fabrique)
+    {
+        var email = $"sans-role-{Guid.NewGuid():N}@erpweb.local";
+        const string motDePasse = "SansRole#2026";
+
+        var administrateur = fabrique.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        await administrateur.ConnecterAsync(FabriqueApplication.EmailAdministrateur, FabriqueApplication.MotDePasseAdministrateur);
+        var creation = await administrateur.EnvoyerFormulaireAsync("/Utilisateurs/Creer", new Dictionary<string, string>
+        {
+            ["NomComplet"] = "Compte Sans Role",
+            ["Email"] = email,
+            ["MotDePasse"] = motDePasse,
+        });
+        Assert.Equal(HttpStatusCode.Redirect, creation.StatusCode);
+
+        var client = fabrique.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        await client.ConnecterAsync(email, motDePasse);
+        return client;
     }
 
     [GeneratedRegex("name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"")]
