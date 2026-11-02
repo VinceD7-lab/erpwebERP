@@ -266,6 +266,191 @@ namespace erpWeb.Infrastructure.Donnees.Migrations
                     b.ToTable("Clients", (string)null);
                 });
 
+            modelBuilder.Entity("erpWeb.Core.DevisClients.Devis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConditionsPaiement")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CreePar")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateDevis")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateEnvoi")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModification")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateReponse")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateValidite")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DelaiLivraison")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Devise")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
+
+                    b.Property<string>("ModifiePar")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<decimal>("MontantTotalHorsTaxe")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("MontantTotalTaxe")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("MontantTotalToutesTaxesComprises")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("MotifRefus")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NotesInternes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Numero")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Objet")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("TauxRemiseGlobale")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("Numero")
+                        .IsUnique();
+
+                    b.ToTable("Devis", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Devis_Montants", "[MontantTotalHorsTaxe] >= 0 AND [MontantTotalTaxe] >= 0 AND [MontantTotalToutesTaxesComprises] >= 0");
+
+                            t.HasCheckConstraint("CK_Devis_TauxRemiseGlobale", "[TauxRemiseGlobale] IS NULL OR [TauxRemiseGlobale] BETWEEN 0 AND 100");
+                        });
+                });
+
+            modelBuilder.Entity("erpWeb.Core.DevisClients.LigneDevis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreePar")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModification")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("DevisId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiePar")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<decimal>("MontantHorsTaxe")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("NumeroLigne")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PrixUnitaireHorsTaxe")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Quantite")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal?>("TauxRemise")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("TauxTaxe")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Unite")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DevisId", "NumeroLigne")
+                        .IsUnique();
+
+                    b.ToTable("LignesDevis", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LignesDevis_TauxRemise", "[TauxRemise] IS NULL OR [TauxRemise] BETWEEN 0 AND 100");
+                        });
+                });
+
             modelBuilder.Entity("erpWeb.Core.Documents.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -835,6 +1020,28 @@ namespace erpWeb.Infrastructure.Donnees.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("erpWeb.Core.DevisClients.Devis", b =>
+                {
+                    b.HasOne("erpWeb.Core.Clients.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("erpWeb.Core.DevisClients.LigneDevis", b =>
+                {
+                    b.HasOne("erpWeb.Core.DevisClients.Devis", "Devis")
+                        .WithMany("Lignes")
+                        .HasForeignKey("DevisId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Devis");
+                });
+
             modelBuilder.Entity("erpWeb.Core.Echantillons.Echantillon", b =>
                 {
                     b.HasOne("erpWeb.Core.Clients.Client", "Client")
@@ -891,6 +1098,11 @@ namespace erpWeb.Infrastructure.Donnees.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("erpWeb.Core.DevisClients.Devis", b =>
+                {
+                    b.Navigation("Lignes");
                 });
 
             modelBuilder.Entity("erpWeb.Core.Echantillons.Echantillon", b =>

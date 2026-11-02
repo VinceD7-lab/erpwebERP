@@ -1,5 +1,6 @@
 using erpWeb.Core.Audit;
 using erpWeb.Core.Clients;
+using erpWeb.Core.DevisClients;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
@@ -34,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IRechercheFactures, ServiceRechercheFactures>();
         services.AddScoped<IServiceImpressionFacture, ServiceImpressionFacture>();
         services.AddScoped<IServicePlanningAnalyses, ServicePlanningAnalyses>();
+        services.AddScoped<ICalculateurDevis, CalculateurDevis>();
+        services.AddScoped<IRechercheDevis, ServiceRechercheDevis>();
 
         services.AddValidatorsFromAssembly(assemblage, ServiceLifetime.Scoped, includeInternalTypes: false);
 

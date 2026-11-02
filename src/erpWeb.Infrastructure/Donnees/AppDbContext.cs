@@ -1,6 +1,7 @@
 using erpWeb.Core.Audit;
 using erpWeb.Core.Clients;
 using erpWeb.Core.Communs;
+using erpWeb.Core.DevisClients;
 using erpWeb.Core.Documents;
 using erpWeb.Core.Echantillons;
 using erpWeb.Core.Factures;
@@ -37,6 +38,10 @@ public sealed class AppDbContext : IdentityDbContext<Utilisateur>, IAppDbContext
     public DbSet<Facture> Factures => Set<Facture>();
 
     public DbSet<PlanningAnalyse> PlanningAnalyses => Set<PlanningAnalyse>();
+
+    public DbSet<Devis> Devis => Set<Devis>();
+
+    public DbSet<LigneDevis> LignesDevis => Set<LigneDevis>();
 
     DbSet<Utilisateur> IAppDbContext.Utilisateurs => Users;
 

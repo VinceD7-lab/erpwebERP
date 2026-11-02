@@ -306,6 +306,28 @@ public sealed class ServiceClientsTests : IDisposable
         Assert.True(await _base.Contexte.PlanningAnalyses.AnyAsync());
     }
 
+    [Fact]
+    public async Task SupprimerAsync_ClientAvecDevis_RetourneEchecEtConserveLeClient()
+    {
+        var client = await AjouterClientAsync("Acier SA");
+        _base.Contexte.Devis.Add(new global::erpWeb.Core.DevisClients.Devis
+        {
+            Numero = "DEV-2026-00001",
+            ClientId = client.Id,
+            DateDevis = new DateTime(2026, 9, 1),
+            DateValidite = new DateTime(2026, 10, 1),
+            Objet = "Analyse de sol",
+        });
+        await _base.Contexte.SaveChangesAsync();
+        _base.Contexte.ChangeTracker.Clear();
+
+        var resultat = await CreerService().SupprimerAsync(client.Id);
+
+        Assert.False(resultat.Reussi);
+        Assert.True(await _base.Contexte.Clients.AnyAsync(autre => autre.Id == client.Id));
+        Assert.True(await _base.Contexte.Devis.AnyAsync());
+    }
+
     private ServiceClients CreerService()
         => new(_base.Contexte, new ValidateurCreationClient(), new ValidateurModificationClient(), BaseDonneesTest.CreerMapper());
 
